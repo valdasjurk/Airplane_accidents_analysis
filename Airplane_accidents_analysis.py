@@ -39,7 +39,21 @@ def reasonable_masks(df):
     print(make_mask)
 
 
+def column_name_replacement(df):
+    df.columns = df.columns.str.replace(".", "_")
+    return df
+
+
+def column_to_datetime(df, column_name):
+    df[column_name] = pd.to_datetime(df[column_name])
+    return df
+
+
 if __name__ == "__main__":
     # download_dataset()
     df = read_dataset()
-    reasonable_masks(df)
+    df = column_name_replacement(df)
+    df = column_to_datetime(df, "Event_Date")
+    print(df["Event_Date"])
+
+    # reasonable_masks(df)
