@@ -53,6 +53,7 @@ def get_accident_amount_by_period(df, column_name: str, start_year: int, end_yea
 
 
 def cut_unwanted_parts_from_column_values(df):
+    """removes symbols and digits from values"""
     df["Injury_Severity"] = df["Injury_Severity"].str.replace("\W", "", regex=True)
     df["Injury_Severity"] = df["Injury_Severity"].str.replace("\d+", "", regex=True)
 
