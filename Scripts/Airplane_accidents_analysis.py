@@ -33,15 +33,16 @@ def column_name_replacement(df, what_to_replace: str, replacement: str) -> pd.Da
 
 def separate_city_and_state(df) -> pd.DataFrame:
     """Separates city and state"""
-    df[["City", "State"]] = df["Location"].str.split(",", n=1, expand=True)
+    df_city_state = df["Location"].str.split(",", n=1, expand=True)
+    df = df.assign(City=df_city_state[0], State=df_city_state[1])
     return df
 
 
-def get_year_and_month_from_date(df) -> pd.DataFrame:
+def create_year_and_month_column_from_date(df) -> pd.DataFrame:
     """Separates year and month from accident date"""
     df["Event_Date"] = pd.to_datetime(df["Event_Date"])
-    df["Event_year"] = df["Event_Date"].dt.year
-    df["Event_month"] = df["Event_Date"].dt.month
+    df = df.assign(Event_year=df["Event_Date"].dt.year)
+    df = df.assign(Event_month=df["Event_Date"].dt.month)
     return df
 
 
@@ -74,12 +75,12 @@ def get_min_max_sum_death_injuries_by_injury_groups(df):
 if __name__ == "__main__":
     df = read_dataset()
     df = column_name_replacement(df, ".", "_")
-    df = separate_city_and_state(df)
-    df = get_year_and_month_from_date(df)
-    print(get_accident_amount_by_period(df, "Event_year", 2020, 2023))
-    df = remove_symbols_and_digits_from_column(df, "Injury_Severity")
-    print(df[["Injury_Severity"]])
-    print(get_min_max_sum_death_injuries_by_injury_groups(df))
+    df_mod = separate_city_and_state(df)
+    df_mod = create_year_and_month_column_from_date(df_mod)
+    df_mod = remove_symbols_and_digits_from_column(df_mod, "Injury_Severity")
+    print(get_accident_amount_by_period(df_mod, "Event_year", 2020, 2023))
+    print(get_min_max_sum_death_injuries_by_injury_groups(df_mod))
+    # print(df.head())
 
 
 """ Df pipe"""
