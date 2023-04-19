@@ -1,7 +1,5 @@
-from airplane_accidents_analysis import get_year_and_month_from_date
+from airplane_accidents_analysis import create_year_and_month_column_from_date
 import pandas as pd
-
-# from pandas.testing import assert_frame_equal
 
 
 def test_get_year_and_month_from_date():
@@ -13,5 +11,5 @@ def test_get_year_and_month_from_date():
             "Event_month": [1, 2],
         }
     )
-    result = get_year_and_month_from_date(df)
+    result = create_year_and_month_column_from_date(df)
     pd.testing.assert_frame_equal(result, df_expected)
