@@ -11,42 +11,46 @@ RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 
 
 class InputSchema(pa.SchemaModel):
-    Event_Id: Series[str] = pa.Field(coerce=True)
-    Investigation_Type: Series[str] = pa.Field(coerce=True)
-    Accident_Number: Series[str] = pa.Field(coerce=True)
-    Event_Date: Series[str] = pa.Field(coerce=True)
-    Location: Series[str] = pa.Field(coerce=True)
-    Country: Series[str] = pa.Field(coerce=True)
-    Latitude: Series[str] = pa.Field(coerce=True)
-    Longitude: Series[str] = pa.Field(coerce=True)
-    Airport_Code: Series[str] = pa.Field(coerce=True)
-    Airport_Name: Series[str] = pa.Field(coerce=True)
-    Injury_Severity: Series[str] = pa.Field(coerce=True)
-    Aircraft_damage: Series[str] = pa.Field(coerce=True)
-    Aircraft_Category: Series[str] = pa.Field(coerce=True)
-    Registration_Number: Series[str] = pa.Field(coerce=True)
-    Make: Series[str] = pa.Field(coerce=True)
-    Model: Series[str] = pa.Field(coerce=True)
-    Amateur_Built: Series[str] = pa.Field(coerce=True)
-    Number_of_Engines: Series[str] = pa.Field(coerce=True)
-    Engine_Type: Series[str] = pa.Field(coerce=True)
-    FAR_Description: Series[str] = pa.Field(coerce=True)
-    Schedule: Series[str] = pa.Field(coerce=True)
-    Purpose_of_flight: Series[str] = pa.Field(coerce=True)
-    Air_carrier: Series[str] = pa.Field(coerce=True)
-    Total_Fatal_Injuries: Series[str] = pa.Field(coerce=True)
-    Total_Serious_Injuries: Series[str] = pa.Field(coerce=True)
-    Total_Minor_Injuries: Series[str] = pa.Field(coerce=True)
-    Total_Uninjured: Series[str] = pa.Field(coerce=True)
-    Weather_Condition: Series[str] = pa.Field(coerce=True)
-    Broad_phase_of_flight: Series[str] = pa.Field(coerce=True)
-    Report_Status: Series[str] = pa.Field(coerce=True)
-    Publication_Date: Series[str] = pa.Field(coerce=True)
+    Event_Id: Series[str] = pa.Field(coerce=True, nullable=True)
+    Investigation_Type: Series[str] = pa.Field(coerce=True, nullable=True)
+    Accident_Number: Series[str] = pa.Field(coerce=True, nullable=True)
+    Event_Date: Series[pd.DatetimeTZDtype] = pa.Field(
+        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True, nullable=True
+    )
+    Location: Series[str] = pa.Field(coerce=True, nullable=True)
+    Country: Series[str] = pa.Field(coerce=True, nullable=True)
+    Latitude: Series[str] = pa.Field(coerce=True, nullable=True)
+    Longitude: Series[str] = pa.Field(coerce=True, nullable=True)
+    Airport_Code: Series[str] = pa.Field(coerce=True, nullable=True)
+    Airport_Name: Series[str] = pa.Field(coerce=True, nullable=True)
+    Injury_Severity: Series[str] = pa.Field(coerce=True, nullable=True)
+    Aircraft_damage: Series[str] = pa.Field(coerce=True, nullable=True)
+    Aircraft_Category: Series[str] = pa.Field(coerce=True, nullable=True)
+    Registration_Number: Series[str] = pa.Field(coerce=True, nullable=True)
+    Make: Series[str] = pa.Field(coerce=True, nullable=True)
+    Model: Series[str] = pa.Field(coerce=True, nullable=True)
+    Amateur_Built: Series[str] = pa.Field(coerce=True, nullable=True)
+    Number_of_Engines: Series[str] = pa.Field(coerce=True, nullable=True)
+    Engine_Type: Series[str] = pa.Field(coerce=True, nullable=True)
+    FAR_Description: Series[str] = pa.Field(coerce=True, nullable=True)
+    Schedule: Series[str] = pa.Field(coerce=True, nullable=True)
+    Purpose_of_flight: Series[str] = pa.Field(coerce=True, nullable=True)
+    Air_carrier: Series[str] = pa.Field(coerce=True, nullable=True)
+    Total_Fatal_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
+    Total_Serious_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
+    Total_Minor_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
+    Total_Uninjured: Series[float] = pa.Field(coerce=True, nullable=True)
+    Weather_Condition: Series[str] = pa.Field(coerce=True, nullable=True)
+    Broad_phase_of_flight: Series[str] = pa.Field(coerce=True, nullable=True)
+    Report_Status: Series[str] = pa.Field(coerce=True, nullable=True)
+    Publication_Date: Series[pd.DatetimeTZDtype] = pa.Field(
+        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True, nullable=True
+    )
 
 
 class OutputSchema(InputSchema):
-    City: Series[str]
-    State: Series[str]
+    City: Series[str] = pa.Field(nullable=True)
+    State: Series[str] = pa.Field(nullable=True)
 
 
 def download_dataset() -> None:
@@ -76,20 +80,16 @@ def column_name_replacement(df, what_to_replace: str, replacement: str) -> pd.Da
     return df
 
 
-# @pa.check_types
-# def separate_city_and_state(df: DataFrame[InputSchema]) -> DataFrame[OutputSchema]:
-def separate_city_and_state(df):
+@pa.check_types
+def separate_city_and_state(df: DataFrame[InputSchema]) -> DataFrame[OutputSchema]:
     """Separates city and state"""
     df_city_state = df["Location"].str.split(",", n=1, expand=True)
-    df["City"] = df_city_state[0]
-    df["State"] = df_city_state[1]
-    # return df.assign(City=df_city_state[0], State=df_city_state[1])
-    return df
+    return df.assign(City=df_city_state[0], State=df_city_state[1])
 
 
 def create_year_and_month_column_from_date(df) -> pd.DataFrame:
     """Separates year and month from accident date"""
-    df["Event_Date"] = pd.to_datetime(df["Event_Date"])
+    # df["Event_Date"] = pd.to_datetime(df["Event_Date"])
     df = df.assign(Event_year=df["Event_Date"].dt.year)
     df = df.assign(Event_month=df["Event_Date"].dt.month)
     return df
@@ -122,26 +122,33 @@ def get_min_max_sum_death_injuries_by_injury_groups(df):
     return grouped_by_severity
 
 
+def timedelta_between_accident_and_publication(df):
+    """Calculates difference in days between publication date and event date"""
+    timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
+    print(timedelta)
+    return df.assign(Timedelta=timedelta)
+
+
 if __name__ == "__main__":
     df = read_dataset()
-    # df.fillna(0, inplace=True)
     df = column_name_replacement(df, ".", "_")
     df_mod = separate_city_and_state(df)
-    print(df_mod.head())
-    # df_mod = create_year_and_month_column_from_date(df_mod)
-    # df_mod = remove_symbols_and_digits_from_column(df_mod, "Injury_Severity")
-    # print(get_accident_amount_by_period(df_mod, "Event_year", 2020, 2023))
-    # print(get_min_max_sum_death_injuries_by_injury_groups(df_mod))
+    df_mod = create_year_and_month_column_from_date(df_mod)
+    df_mod = remove_symbols_and_digits_from_column(df_mod, "Injury_Severity")
+    print(get_accident_amount_by_period(df_mod, "Event_year", 2020, 2023))
+    print(get_min_max_sum_death_injuries_by_injury_groups(df_mod))
+    timedelta_between_accident_and_publication(df_mod)
     # print(df.head())
 
-
-""" Df pipe"""
-# df = read_dataset()
-# (
-#     df.pipe(column_name_replacement, ".", "_")
-#     .pipe(separate_city_and_state)
-#     .pipe(get_year_and_month_from_date)
-# )
+    # df = read_dataset()
+    # (
+    #     df.pipe(column_name_replacement, ".", "_")
+    #     .pipe(separate_city_and_state)
+    #     .pipe(create_year_and_month_column_from_date)
+    #     .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
+    #     .pipe(get_min_max_sum_death_injuries_by_injury_groups)
+    # .pipe(get_accident_amount_by_period("Event_year", 2020, 2023))
+    # )
 
 
 """ Functions for final data representation"""
