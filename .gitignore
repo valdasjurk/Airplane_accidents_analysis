@@ -2,3 +2,4 @@ pycache
 *.csv
 *.json
 *.pyc
+*.png
