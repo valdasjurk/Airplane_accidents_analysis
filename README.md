@@ -2,6 +2,17 @@
 
 Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
+project/
+├── data/
+│ ├── raw/
+│ ├── processed/
+│ └── interim/
+├── notebooks/
+├── scripts/
+├── output/
+├── README.md
+└── requirements.txt
+
 Analysis questions: 
 1. Deal with missing values.
 2. Column name replacement
