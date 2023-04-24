@@ -14,8 +14,13 @@ project/
 ├── README.md
 └── requirements.txt
 ```
+## Installation
 
-Analysis questions: 
+Install required modules: 
+pip install -r requirements.txt
+
+# Analysis questions
+
 1. Deal with missing values.
 2. Column name replacement
 3. Separate City from State and create new columns with them
