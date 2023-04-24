@@ -2,6 +2,7 @@
 
 Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
+```
 project/
 ├── data/
 │ ├── raw/
@@ -12,6 +13,7 @@ project/
 ├── output/
 ├── README.md
 └── requirements.txt
+```
 
 Analysis questions: 
 1. Deal with missing values.
