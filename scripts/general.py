@@ -11,32 +11,32 @@ RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 
 
 class InputSchema(pa.SchemaModel):
-    Event_Id: Series[str] = pa.Field(nullable=True, coerce=True)
-    Investigation_Type: Series[str] = pa.Field(nullable=True, coerce=True)
-    Accident_Number: Series[str] = pa.Field(nullable=True, coerce=True)
+    Event_Id: Series[str]
+    Investigation_Type: Series[str]
+    Accident_Number: Series[str]
     Event_Date: Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True, nullable=True
+        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True
     )
-    Location: Series[str] = pa.Field(nullable=True, coerce=True)
-    Country: Series[str] = pa.Field(nullable=True, coerce=True)
-    Latitude: Series[str] = pa.Field(coerce=True, nullable=True)
-    Longitude: Series[str] = pa.Field(coerce=True, nullable=True)
-    Airport_Code: Series[str] = pa.Field(nullable=True, coerce=True)
-    Airport_Name: Series[str] = pa.Field(nullable=True, coerce=True)
-    Injury_Severity: Series[str] = pa.Field(nullable=True, coerce=True)
-    Aircraft_damage: Series[str] = pa.Field(nullable=True, coerce=True)
-    Aircraft_Category: Series[str] = pa.Field(nullable=True, coerce=True)
-    Registration_Number: Series[str] = pa.Field(nullable=True, coerce=True)
-    Make: Series[str] = pa.Field(nullable=True, coerce=True)
-    Model: Series[str] = pa.Field(nullable=True, coerce=True)
-    Amateur_Built: Series[str] = pa.Field(nullable=True, coerce=True)
-    Number_of_Engines: Series[str] = pa.Field(nullable=True, coerce=True)
+    Location: Series[str] = pa.Field(nullable=True)
+    Country: Series[str] = pa.Field(nullable=True)
+    Latitude: Series[str] = pa.Field(nullable=True)
+    Longitude: Series[str] = pa.Field(nullable=True)
+    Airport_Code: Series[str] = pa.Field(nullable=True)
+    Airport_Name: Series[str] = pa.Field(nullable=True)
+    Injury_Severity: Series[str] = pa.Field(nullable=True)
+    Aircraft_damage: Series[str] = pa.Field(nullable=True)
+    Aircraft_Category: Series[str] = pa.Field(nullable=True)
+    Registration_Number: Series[str] = pa.Field(nullable=True)
+    Make: Series[str] = pa.Field(nullable=True)
+    Model: Series[str] = pa.Field(nullable=True)
+    Amateur_Built: Series[str] = pa.Field(nullable=True)
+    Number_of_Engines: Series[float] = pa.Field(coerce=True, nullable=True)
     Engine_Type: Series[str] = pa.Field(coerce=True, nullable=True)
     FAR_Description: Series[str] = pa.Field(coerce=True, nullable=True)
     Schedule: Series[str] = pa.Field(coerce=True, nullable=True)
     Purpose_of_flight: Series[str] = pa.Field(coerce=True, nullable=True)
     Air_carrier: Series[str] = pa.Field(coerce=True, nullable=True)
-    Total_Fatal_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
+    Total_Fatal_Injuries: Series[float] = pa.Field(nullable=True)
     Total_Serious_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
     Total_Minor_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
     Total_Uninjured: Series[float] = pa.Field(coerce=True, nullable=True)
@@ -48,16 +48,11 @@ class InputSchema(pa.SchemaModel):
     )
 
     # class Config:
-    #     coerce = True
     #     nullable = True
 
 
 class OutputSchema(InputSchema):
     pass
-
-
-# City: Series[str] = pa.Field(nullable=True)
-# State: Series[str] = pa.Field(nullable=True)
 
 
 def download_dataset() -> None:
@@ -152,14 +147,19 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
     return df.assign(Time_between_publication_and_event=timedelta)
 
 
-if __name__ == "__main__":
-    df = read_dataset()
+def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     df_processed = (
         df.pipe(column_name_replacement, ".", "_")
         .pipe(separate_city_and_state)
         .pipe(create_year_and_month_column_from_date)
         .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
     )
+    return df_processed
+
+
+if __name__ == "__main__":
+    df = read_dataset()
+    df_processed = preprocese_dataset(df)
 
     death_injuries_statistics = get_min_max_sum_death_injuries_by_injury_groups(
         df_processed
@@ -167,8 +167,6 @@ if __name__ == "__main__":
     accidents_by_period = get_accident_amount_by_period(
         df_processed, "Event_year", 2020, 2023
     )
-    print(death_injuries_statistics)
-    print(accidents_by_period)
 
 
 """ Future Functions for final data representation"""
