@@ -141,7 +141,7 @@ def timedelta_between_accident_and_publication(df):
     """Calculates difference in days between publication date and event date"""
     timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
     fig = timedelta.plot.hist(bins=12, legend=True, xlim=(0, 6000))
-    fig.figure.savefig("Timedelta.png")
+    fig.figure.savefig("output/Timedelta.png")
     return df.assign(Timedelta=timedelta)
 
 
