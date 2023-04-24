@@ -17,9 +17,10 @@ project/
 ## Installation
 
 Install required modules: 
+```
 pip install -r requirements.txt
-
-# Analysis questions
+```
+## Analysis questions
 
 1. Deal with missing values.
 2. Column name replacement
