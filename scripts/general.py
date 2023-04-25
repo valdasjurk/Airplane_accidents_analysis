@@ -8,6 +8,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
+INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
 
 
 class InputSchema(pa.SchemaModel):
@@ -74,6 +75,10 @@ def read_dataset() -> pd.DataFrame:
         na_values=" ",
     )
     return df
+
+
+def save_to_csv(df):
+    df.to_csv(INTERIM_DIRECTORY, index=False)
 
 
 @pa.check_types

@@ -4,6 +4,7 @@ from general import (
     read_dataset,
     get_min_max_sum_death_injuries_by_injury_groups,
     get_accident_amount_by_period,
+    save_to_csv,
 )
 import argparse
 
@@ -15,6 +16,7 @@ def download_data():
 def preprocesse():
     df = read_dataset()
     df_processed = preprocese_dataset(df)
+    save_to_csv(df_processed)
     return df_processed
 
 
