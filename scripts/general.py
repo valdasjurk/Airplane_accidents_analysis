@@ -4,8 +4,9 @@ import kaggle
 import pandas as pd
 import pandera as pa
 from pandera.typing import DataFrame, Series
-import seaborn as sns
-import matplotlib.pyplot as plt
+
+# import seaborn as sns
+# import matplotlib.pyplot as plt
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
@@ -16,7 +17,7 @@ class InputSchema(pa.SchemaModel):
     Investigation_Type: Series[str]
     Accident_Number: Series[str]
     Event_Date: Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True
+        dtype_kwargs={"unit": "ns", "tz": "EST"}
     )
     Location: Series[str] = pa.Field(nullable=True)
     Country: Series[str] = pa.Field(nullable=True)
@@ -31,25 +32,25 @@ class InputSchema(pa.SchemaModel):
     Make: Series[str] = pa.Field(nullable=True)
     Model: Series[str] = pa.Field(nullable=True)
     Amateur_Built: Series[str] = pa.Field(nullable=True)
-    Number_of_Engines: Series[float] = pa.Field(coerce=True, nullable=True)
-    Engine_Type: Series[str] = pa.Field(coerce=True, nullable=True)
-    FAR_Description: Series[str] = pa.Field(coerce=True, nullable=True)
-    Schedule: Series[str] = pa.Field(coerce=True, nullable=True)
-    Purpose_of_flight: Series[str] = pa.Field(coerce=True, nullable=True)
-    Air_carrier: Series[str] = pa.Field(coerce=True, nullable=True)
+    Number_of_Engines: Series[float] = pa.Field(nullable=True)
+    Engine_Type: Series[str] = pa.Field(nullable=True)
+    FAR_Description: Series[str] = pa.Field(nullable=True)
+    Schedule: Series[str] = pa.Field(nullable=True)
+    Purpose_of_flight: Series[str] = pa.Field(nullable=True)
+    Air_carrier: Series[str] = pa.Field(nullable=True)
     Total_Fatal_Injuries: Series[float] = pa.Field(nullable=True)
-    Total_Serious_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
-    Total_Minor_Injuries: Series[float] = pa.Field(coerce=True, nullable=True)
-    Total_Uninjured: Series[float] = pa.Field(coerce=True, nullable=True)
-    Weather_Condition: Series[str] = pa.Field(coerce=True, nullable=True)
-    Broad_phase_of_flight: Series[str] = pa.Field(coerce=True, nullable=True)
-    Report_Status: Series[str] = pa.Field(coerce=True, nullable=True)
+    Total_Serious_Injuries: Series[float] = pa.Field(nullable=True)
+    Total_Minor_Injuries: Series[float] = pa.Field(nullable=True)
+    Total_Uninjured: Series[float] = pa.Field(nullable=True)
+    Weather_Condition: Series[str] = pa.Field(nullable=True)
+    Broad_phase_of_flight: Series[str] = pa.Field(nullable=True)
+    Report_Status: Series[str] = pa.Field(nullable=True)
     Publication_Date: Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "EST"}, coerce=True, nullable=True
+        dtype_kwargs={"unit": "ns", "tz": "EST"}, nullable=True
     )
 
-    # class Config:
-    #     nullable = True
+    class Config:
+        coerce = True
 
 
 class OutputSchema(InputSchema):
@@ -72,7 +73,7 @@ def read_dataset() -> pd.DataFrame:
         parse_dates=["Event.Date", "Publication.Date"],
         encoding="cp1252",
         low_memory=False,
-        na_values=" ",
+        # na_values=" ",
     )
     return df
 
@@ -94,12 +95,12 @@ def separate_city_and_state(df: pd.DataFrame) -> pd.DataFrame:
     """Separates city and state"""
     df_city_state = df["Location"].str.split(",", n=1, expand=True)
     dfr = df.assign(City=df_city_state[0], State=df_city_state[1])
-    """ plotting events by states count"""
-    sns.countplot(
-        y="State",
-        data=dfr[dfr["Country"] == "United States"],
-    )
-    plt.show()
+    # """ plotting events by states count"""
+    # sns.countplot(
+    #     y="State",
+    #     data=dfr[dfr["Country"] == "United States"],
+    # )
+    # plt.show()
     return dfr
 
 
