@@ -20,6 +20,20 @@ Install required modules:
 ```
 pip install -r requirements.txt
 ```
+
+Download dataset to your local repository:
+```
+python run.py --get_results
+```
+Read, preprocesse and store dataset in output/interim 
+```
+python run.py --preprocesse
+```
+Get death injuries statistics, accidents by period 
+```
+python run.py --get_results
+```
+
 ## Analysis questions
 
 1. Deal with missing values.
