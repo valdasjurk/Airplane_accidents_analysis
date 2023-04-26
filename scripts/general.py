@@ -142,9 +142,6 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
 def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
     """Calculates difference in days between publication date and event date"""
     timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
-    """ plotting results in histogram """
-    fig = timedelta.plot.hist(bins=12, legend=True, xlim=(0, 6000))
-    fig.figure.savefig("output/Timedelta.png")
     return df.assign(Time_between_publication_and_event=timedelta)
 
 
@@ -157,12 +154,21 @@ def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
     plt.show()
 
 
+def plot_time_between_publication_and_event(df: pd.DataFrame) -> None:
+    """plotting histogram of time between publication and event"""
+    df["Time_between_publication_and_event"].plot.hist(
+        bins=12, legend=True, xlim=(0, 6000)
+    )
+    plt.show()
+
+
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     df_processed = (
         df.pipe(column_name_replacement, ".", "_")
         .pipe(separate_city_and_state)
         .pipe(create_year_and_month_column_from_date)
         .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
+        .pipe(timedelta_between_accident_and_publication)
     )
     return df_processed
 
@@ -178,7 +184,7 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-
+    plot_time_between_publication_and_event(df_processed)
 """ Future Functions for final data representation"""
 # create_visualization = visualize(df)
 # final_report_df = create_report(df)
