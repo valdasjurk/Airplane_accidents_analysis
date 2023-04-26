@@ -50,6 +50,8 @@ class InputSchema(pa.SchemaModel):
     )
 
     class Config:
+        """Input schema config"""
+
         coerce = True
 
 
