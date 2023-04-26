@@ -4,9 +4,8 @@ import kaggle
 import pandas as pd
 import pandera as pa
 from pandera.typing import DataFrame, Series
-
-# import seaborn as sns
-# import matplotlib.pyplot as plt
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
@@ -97,12 +96,6 @@ def separate_city_and_state(df: pd.DataFrame) -> pd.DataFrame:
     """Separates city and state"""
     df_city_state = df["Location"].str.split(",", n=1, expand=True)
     dfr = df.assign(City=df_city_state[0], State=df_city_state[1])
-    # """ plotting events by states count"""
-    # sns.countplot(
-    #     y="State",
-    #     data=dfr[dfr["Country"] == "United States"],
-    # )
-    # plt.show()
     return dfr
 
 
@@ -153,6 +146,15 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
     fig = timedelta.plot.hist(bins=12, legend=True, xlim=(0, 6000))
     fig.figure.savefig("output/Timedelta.png")
     return df.assign(Time_between_publication_and_event=timedelta)
+
+
+def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
+    """plotting events by states count"""
+    sns.countplot(
+        y="State",
+        data=df[df["Country"] == "United States"],
+    )
+    plt.show()
 
 
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
