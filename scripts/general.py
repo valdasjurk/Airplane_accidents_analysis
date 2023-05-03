@@ -6,6 +6,10 @@ import pandera as pa
 from pandera.typing import DataFrame, Series
 import seaborn as sns
 import matplotlib.pyplot as plt
+import requests
+import json
+import numpy as np
+from datetime import timedelta
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
@@ -79,7 +83,7 @@ def read_dataset() -> pd.DataFrame:
     return df
 
 
-def save_to_csv(df):
+def save_to_csv(df: pd.DataFrame) -> None:
     df.to_csv(INTERIM_DIRECTORY, index=False)
 
 
@@ -173,6 +177,34 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     return df_processed
 
 
+def add_data_from_external_source(df: pd.DataFrame) -> pd.DataFrame:
+    """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
+    temperatures = []
+    df = df.head()
+    for index, row in df.iterrows():
+        try:
+            start_date = row["Event_Date"].date()
+            end_date = start_date + timedelta(days=1)
+
+            params = {
+                "key": ["b7c8b0bdb6724a3c9d40c8fef07ee335"],
+                "start_date": start_date,
+                "end_date": end_date,
+                "city": row["City"],
+            }
+
+            method = "ping"
+            api_base = "https://api.weatherbit.io/v2.0/history/daily?"
+            api_result = requests.get(api_base + method, params)
+            response = api_result.text
+            response_dict = json.loads(response)
+            for key in response_dict["data"]:
+                temperatures.append(key["temp"])
+        except ValueError:
+            temperatures.append(np.nan)
+    return df.assign(Temperatures_accident_day=temperatures)
+
+
 if __name__ == "__main__":
     df = read_dataset()
     df_processed = preprocese_dataset(df)
@@ -184,8 +216,12 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-    plot_time_between_publication_and_event(df_processed)
+    add_data_from_external_source(df_processed)
+
+
 """ Future Functions for final data representation"""
+# plot_time_between_publication_and_event(df_processed)
+# save_to_csv(df_temp)
 # create_visualization = visualize(df)
 # final_report_df = create_report(df)
 # df.to_excel("sdfsdf.xlsx")
