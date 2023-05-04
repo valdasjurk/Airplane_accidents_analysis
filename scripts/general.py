@@ -204,27 +204,31 @@ def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     temperatures = []
     df = df.tail(5)
     for index, row in df.iterrows():
-        try:
-            start_date = row["Event_Date"].date()
-            end_date = start_date + timedelta(days=1)
+        start_date = row["Event_Date"].date()
+        end_date = start_date + timedelta(days=1)
+        params = {
+            "key": ["b7c8b0bdb6724a3c9d40c8fef07ee335"],
+            "start_date": start_date,
+            "end_date": end_date,
+            "city": row["City"],
+        }
+        response_dict = api_request_weatherbit_api(params)
+        for key in response_dict["data"]:
+            temperatures.append(key["temp"])
 
-            params = {
-                "key": ["b7c8b0bdb6724a3c9d40c8fef07ee335"],
-                "start_date": start_date,
-                "end_date": end_date,
-                "city": row["City"],
-            }
-
-            method = "ping"
-            api_base = "https://api.weatherbit.io/v2.0/history/daily?"
-            api_result = requests.get(api_base + method, params)
-            response = api_result.text
-            response_dict = json.loads(response)
-            for key in response_dict["data"]:
-                temperatures.append(key["temp"])
-        except ValueError:
-            temperatures.append(np.nan)
     return df.assign(Temperatures_accident_day=temperatures)
+
+
+def api_request_weatherbit_api(parameters):
+    method = "ping"
+    api_base = "https://api.weatherbit.io/v2.0/history/daily?"
+    try:
+        api_result = requests.get(api_base + method, parameters)
+        response = api_result.text
+        response_dict = json.loads(response)
+    except ValueError:
+        response_dict = {"data": {"temp": np.nan}}
+    return response_dict
 
 
 if __name__ == "__main__":
