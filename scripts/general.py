@@ -149,6 +149,12 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
     return df.assign(Time_between_publication_and_event=timedelta)
 
 
+def get_which_airplane_make_has_most_accidents(df: pd.DataFrame) -> str:
+    """Function returns manufacturer of airplanes that participates in accidents most frequently"""
+    df["Make"] = df["Make"].str.lower()
+    return df["Make"].mode()[0]
+
+
 def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
     """plotting events by states count"""
     sns.countplot(
@@ -216,7 +222,8 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-    add_data_from_external_source(df_processed)
+    get_which_airplane_make_has_most_accidents(df_processed)
+    # add_data_from_external_source(df_processed)
 
 
 """ Future Functions for final data representation"""
