@@ -4,3 +4,4 @@ pycache
 *.pyc
 *.png
 *.log
+scripts/config.py

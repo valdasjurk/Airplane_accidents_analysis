@@ -1,12 +1,13 @@
-import requests
 import json
 
-""" Prints airport full name by its iata code"""
+import config
+import requests
 
 
-def add_data_from_airlabs_api():
+def add_data_from_airlabs_api(api_key=config.AIRLABS_API_KEY):
+    """Prints airport full name by its iata code"""
     params = {
-        "api_key": "ef006315-1a52-4296-8ba9-124b6fb58f67",
+        "api_key": api_key,
         "iata_code": ["KUN, JAX, EWR, VNO"],
     }
     method = "ping"
