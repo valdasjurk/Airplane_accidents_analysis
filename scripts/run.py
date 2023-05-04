@@ -9,10 +9,6 @@ from general import (
 import argparse
 
 
-def download_data():
-    download_dataset()
-
-
 def preprocesse():
     df = read_dataset()
     df_processed = preprocese_dataset(df)
@@ -48,7 +44,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.download_data:
-        download_data()
+        download_dataset()
 
     if args.preprocesse:
         preprocesse()
