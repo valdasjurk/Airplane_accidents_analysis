@@ -155,6 +155,17 @@ def get_which_airplane_make_has_most_accidents(df: pd.DataFrame) -> str:
     return df["Make"].mode()[0]
 
 
+def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.Series:
+    """Function flight purpose statistics"""
+    return df["Purpose_of_flight"].value_counts()
+
+
+def get_airplane_make_statistics(df: pd.DataFrame) -> pd.Series:
+    """Function flight purpose statistics"""
+    df["Make"] = df["Make"].str.lower()
+    return df["Make"].value_counts()
+
+
 def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
     """plotting events by states count"""
     sns.countplot(
@@ -222,7 +233,9 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-    get_which_airplane_make_has_most_accidents(df_processed)
+    # get_which_airplane_make_has_most_accidents(df_processed)
+    flight_purpose_statistics = get_flight_purpose_statistics(df_processed)
+    airplane_make_statistics = get_airplane_make_statistics(df_processed)
     # add_data_from_external_source(df_processed)
 
 
