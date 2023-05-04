@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 Download dataset to your local repository:
 ```
-python run.py --get_results
+python run.py --download_data
 ```
 Read, preprocesse and store dataset in output/interim 
 ```
