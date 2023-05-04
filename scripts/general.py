@@ -199,10 +199,10 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     return df_processed
 
 
-def add_data_from_external_source(df: pd.DataFrame) -> pd.DataFrame:
+def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
     temperatures = []
-    df = df.head()
+    df = df.tail(5)
     for index, row in df.iterrows():
         try:
             start_date = row["Event_Date"].date()
@@ -238,12 +238,14 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
+    df_with_external_data = add_data_from_weatherbit_api(df_processed)
+    print(df_with_external_data.head())
+
     flight_purpose_statistics = get_flight_purpose_statistics(df_processed)
     airplane_make_statistics = get_airplane_make_statistics(df_processed)
     get_most_freq_airplane_make_and_type(
         airplane_make_statistics, flight_purpose_statistics
     )
-    # add_data_from_external_source(df_processed)
 
 
 """ Future Functions for final data representation"""
