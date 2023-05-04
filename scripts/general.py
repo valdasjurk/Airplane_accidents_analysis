@@ -149,10 +149,15 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
     return df.assign(Time_between_publication_and_event=timedelta)
 
 
-def get_which_airplane_make_has_most_accidents(df: pd.DataFrame) -> str:
-    """Function returns manufacturer of airplanes that participates in accidents most frequently"""
-    df["Make"] = df["Make"].str.lower()
-    return df["Make"].mode()[0]
+def get_most_freq_airplane_make_and_type(
+    top_makes: pd.Series, top_purpose: pd.Series
+) -> pd.DataFrame:
+    """Function returns manufacturer and type of airplanes that participates in accidents most frequently"""
+    most_freq_make = top_makes.nlargest(1)
+    most_freq_purpose = top_purpose.nlargest(1)
+    df_most_freq = pd.concat([most_freq_make, most_freq_purpose], axis=0).reset_index()
+    df_most_freq.columns = ["Statistics object", "Count"]
+    return df_most_freq
 
 
 def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.Series:
@@ -161,7 +166,7 @@ def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.Series:
 
 
 def get_airplane_make_statistics(df: pd.DataFrame) -> pd.Series:
-    """Function flight purpose statistics"""
+    """Returns top 10 airplane makes that gets into the accidents"""
     df["Make"] = df["Make"].str.lower()
     return df["Make"].value_counts()
 
@@ -233,9 +238,11 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-    # get_which_airplane_make_has_most_accidents(df_processed)
     flight_purpose_statistics = get_flight_purpose_statistics(df_processed)
     airplane_make_statistics = get_airplane_make_statistics(df_processed)
+    get_most_freq_airplane_make_and_type(
+        airplane_make_statistics, flight_purpose_statistics
+    )
     # add_data_from_external_source(df_processed)
 
 
