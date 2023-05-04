@@ -10,6 +10,7 @@ import requests
 import json
 import numpy as np
 from datetime import timedelta
+import logging
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
@@ -80,6 +81,7 @@ def read_dataset() -> pd.DataFrame:
         low_memory=False,
         # na_values=" ",
     )
+    dataframe_logging(df)
     return df
 
 
@@ -231,7 +233,18 @@ def api_request_weatherbit_api(parameters):
     return response_dict
 
 
+def dataframe_logging(df):
+    logging.info(f"Column names: {', '.join(df.columns)}")
+    logging.info(f"Dataframe shape (rows, columns): {df.shape}")
+
+
 if __name__ == "__main__":
+    logging.basicConfig(
+        filename="logger.log",
+        format="%(asctime)s %(levelname)-8s %(message)s",
+        level=logging.INFO,
+    )
+
     df = read_dataset()
     df_processed = preprocese_dataset(df)
 
@@ -242,8 +255,8 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
-    df_with_external_data = add_data_from_weatherbit_api(df_processed)
-    print(df_with_external_data.head())
+    # df_with_external_data = add_data_from_weatherbit_api(df_processed)
+    # print(df_with_external_data.head())
 
     flight_purpose_statistics = get_flight_purpose_statistics(df_processed)
     airplane_make_statistics = get_airplane_make_statistics(df_processed)
