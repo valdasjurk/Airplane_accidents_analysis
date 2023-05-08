@@ -1,1 +1,6 @@
 AIRLABS_API_KEY = "REPLACE THIS WITH KEY..."
+WEATHERBIT_API_KEY = "REPLACE THIS WITH KEY..."
+
+RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
+INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
+LOGGER_FILENAME = "logger.log"
