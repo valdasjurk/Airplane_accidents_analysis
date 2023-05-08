@@ -1,16 +1,17 @@
 # Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
+import json
+import logging
+from datetime import timedelta
+
 import kaggle
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import pandera as pa
-from pandera.typing import DataFrame, Series
-import seaborn as sns
-import matplotlib.pyplot as plt
 import requests
-import json
-import numpy as np
-from datetime import timedelta
-import logging
+import seaborn as sns
+from pandera.typing import DataFrame, Series
 
 RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
