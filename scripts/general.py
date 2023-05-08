@@ -12,9 +12,7 @@ import pandera as pa
 import requests
 import seaborn as sns
 from pandera.typing import DataFrame, Series
-
-RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
-INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
+import config
 
 
 class InputSchema(pa.SchemaModel):
@@ -76,7 +74,7 @@ def download_dataset() -> None:
 
 def read_dataset() -> pd.DataFrame:
     df = pd.read_csv(
-        RAW_DATA_DIRECTORY,
+        config.RAW_DATA_DIRECTORY,
         parse_dates=["Event.Date", "Publication.Date"],
         encoding="cp1252",
         low_memory=False,
@@ -87,7 +85,7 @@ def read_dataset() -> pd.DataFrame:
 
 
 def save_to_csv(df: pd.DataFrame) -> None:
-    df.to_csv(INTERIM_DIRECTORY, index=False)
+    df.to_csv(config.INTERIM_DIRECTORY, index=False)
 
 
 @pa.check_types
@@ -210,7 +208,7 @@ def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
         start_date = row["Event_Date"].date()
         end_date = start_date + timedelta(days=1)
         params = {
-            "key": ["b7c8b0bdb6724a3c9d40c8fef07ee335"],
+            "key": [config.WEATHERBIT_API_KEY],
             "start_date": start_date,
             "end_date": end_date,
             "city": row["City"],
@@ -241,7 +239,7 @@ def dataframe_logging(df):
 
 if __name__ == "__main__":
     logging.basicConfig(
-        filename="logger.log",
+        filename=config.LOGGER_FILENAME,
         format="%(asctime)s %(levelname)-8s %(message)s",
         level=logging.INFO,
     )
