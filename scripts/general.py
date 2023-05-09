@@ -63,6 +63,7 @@ class OutputSchema(InputSchema):
 
 
 def download_dataset() -> None:
+    logging.info("Started downloading dataset...")
     kaggle.api.dataset_download_files(
         dataset="khsamaha/aviation-accident-database-synopses",
         path="data",
@@ -70,9 +71,11 @@ def download_dataset() -> None:
         quiet=False,
         force=False,
     )
+    logging.info("Dataset was downloaded")
 
 
 def read_dataset() -> pd.DataFrame:
+    logging.info("Started reading dataset...")
     df = pd.read_csv(
         config.RAW_DATA_DIRECTORY,
         parse_dates=["Event.Date", "Publication.Date"],
@@ -85,7 +88,10 @@ def read_dataset() -> pd.DataFrame:
 
 
 def save_to_csv(df: pd.DataFrame) -> None:
+    logging.info("Started saving dataset...")
     df.to_csv(config.INTERIM_DIRECTORY, index=False)
+    logging.info("Dataset was saved to .csv")
+    dataframe_logging(df)
 
 
 @pa.check_types
@@ -93,21 +99,30 @@ def column_name_replacement(
     df, what_to_replace: str, replacement: str
 ) -> DataFrame[InputSchema]:
     """Replaces symbols, letters in all column names with a given string"""
+    logging.info("Started column name replacing upon condition...")
+    logging.info("Column info before:")
+    dataframe_logging(df)
     df.columns = df.columns.str.replace(what_to_replace, replacement)
+    logging.info("Column info after:")
+    dataframe_logging(df)
     return df
 
 
 def separate_city_and_state(df: pd.DataFrame) -> pd.DataFrame:
     """Separates city and state"""
+    logging.info("Started split city and state...")
     df_city_state = df["Location"].str.split(",", n=1, expand=True)
     dfr = df.assign(City=df_city_state[0], State=df_city_state[1])
+    dataframe_logging(df)
     return dfr
 
 
 def create_year_and_month_column_from_date(df: pd.DataFrame) -> pd.DataFrame:
     """Separates year and month from accident date"""
+    logging.info("Started create year and month columns from date...")
     df = df.assign(Event_year=df["Event_Date"].dt.year)
     df = df.assign(Event_month=df["Event_Date"].dt.month)
+    dataframe_logging(df)
     return df
 
 
@@ -121,10 +136,14 @@ def get_accident_amount_by_period(
     df, column_name: str, start_year: int, end_year: int
 ) -> int:
     """Returns accident amount by a given period"""
+    logging.info(
+        f"Started calculate accident amount by period {start_year} - {end_year}"
+    )
     df_by_condition = df[
         (df[column_name] >= start_year) & (df[column_name] <= end_year)
     ]
     amount_of_accidents = len(df_by_condition)
+    logging.info(f"Amount of accidents: {amount_of_accidents}")
     return amount_of_accidents
 
 
@@ -141,23 +160,33 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
     grouped_by_severity = df.groupby("Injury_Severity")["Total_Fatal_Injuries"].agg(
         ["min", "max", "sum"]
     )
+    logging.info(f"severity groups statistics:\n {grouped_by_severity}")
     return grouped_by_severity
 
 
 def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
     """Calculates difference in days between publication date and event date"""
+    logging.info(
+        "Started calculate timedelta between accident and publication dates..."
+    )
     timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
-    return df.assign(Time_between_publication_and_event=timedelta)
+    df_with_timedelta = df.assign(Time_between_publication_and_event=timedelta)
+    dataframe_logging(df_with_timedelta)
+    return df_with_timedelta
 
 
 def get_most_freq_airplane_make_and_type(
     top_makes: pd.Series, top_purpose: pd.Series
 ) -> pd.DataFrame:
     """Function returns manufacturer and type of airplanes that participates in accidents most frequently"""
+    logging.info(
+        " Started calculate manufacturer and type of airplanes that participates in accidents most frequently..."
+    )
     most_freq_make = top_makes.nlargest(1)
     most_freq_purpose = top_purpose.nlargest(1)
     df_most_freq = pd.concat([most_freq_make, most_freq_purpose], axis=0).reset_index()
     df_most_freq.columns = ["Statistics object", "Count"]
+    logging.info(f"Make and purpose statistics:\n {df_most_freq}")
     return df_most_freq
 
 
@@ -190,6 +219,8 @@ def plot_time_between_publication_and_event(df: pd.DataFrame) -> None:
 
 
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
+    logging.info("Started preprocesing dataset...")
+    dataframe_logging(df)
     df_processed = (
         df.pipe(column_name_replacement, ".", "_")
         .pipe(separate_city_and_state)
@@ -197,11 +228,14 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
         .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
         .pipe(timedelta_between_accident_and_publication)
     )
+    logging.info("Finished preprocesing dataset")
+    dataframe_logging(df)
     return df_processed
 
 
 def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
+    logging.info("Started adding data from weatherbit...")
     temperatures = []
     df = df.tail(5)
     for index, row in df.iterrows():
@@ -216,7 +250,7 @@ def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
         response_dict = api_request_weatherbit_api(params)
         for key in response_dict["data"]:
             temperatures.append(key["temp"])
-
+    logging.info("Finished adding data from weatherbit!")
     return df.assign(Temperatures_accident_day=temperatures)
 
 
