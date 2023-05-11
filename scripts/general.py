@@ -62,8 +62,22 @@ class OutputSchema(InputSchema):
     pass
 
 
+def logger_df(func):
+    def inner(*args, **kwargs):
+        logging.info(f"Started executing function: {func.__name__}")
+        output = func(*args, **kwargs)
+        logging.info(
+            f"{func.__name__} function returned dataframe with shape: {output.shape}"
+        )
+        logging.info(
+            f"{func.__name__} function returned dataframe with columns: {', '.join(output.columns)}"
+        )
+        return output
+
+    return inner
+
+
 def download_dataset() -> None:
-    logging.info("Started downloading dataset...")
     kaggle.api.dataset_download_files(
         dataset="khsamaha/aviation-accident-database-synopses",
         path="data",
@@ -71,11 +85,10 @@ def download_dataset() -> None:
         quiet=False,
         force=False,
     )
-    logging.info("Dataset was downloaded")
 
 
+@logger_df
 def read_dataset() -> pd.DataFrame:
-    logging.info("Started reading dataset...")
     df = pd.read_csv(
         config.RAW_DATA_DIRECTORY,
         parse_dates=["Event.Date", "Publication.Date"],
@@ -83,46 +96,37 @@ def read_dataset() -> pd.DataFrame:
         low_memory=False,
         # na_values=" ",
     )
-    dataframe_logging(df)
     return df
 
 
+@logger_df
 def save_to_csv(df: pd.DataFrame) -> None:
-    logging.info("Started saving dataset...")
     df.to_csv(config.INTERIM_DIRECTORY, index=False)
-    logging.info("Dataset was saved to .csv")
-    dataframe_logging(df)
 
 
+@logger_df
 @pa.check_types
 def column_name_replacement(
     df, what_to_replace: str, replacement: str
 ) -> DataFrame[InputSchema]:
     """Replaces symbols, letters in all column names with a given string"""
-    logging.info("Started column name replacing upon condition...")
-    logging.info("Column info before:")
-    dataframe_logging(df)
     df.columns = df.columns.str.replace(what_to_replace, replacement)
-    logging.info("Column info after:")
-    dataframe_logging(df)
     return df
 
 
+@logger_df
 def separate_city_and_state(df: pd.DataFrame) -> pd.DataFrame:
     """Separates city and state"""
-    logging.info("Started split city and state...")
     df_city_state = df["Location"].str.split(",", n=1, expand=True)
     dfr = df.assign(City=df_city_state[0], State=df_city_state[1])
-    dataframe_logging(df)
     return dfr
 
 
+@logger_df
 def create_year_and_month_column_from_date(df: pd.DataFrame) -> pd.DataFrame:
     """Separates year and month from accident date"""
-    logging.info("Started create year and month columns from date...")
     df = df.assign(Event_year=df["Event_Date"].dt.year)
     df = df.assign(Event_month=df["Event_Date"].dt.month)
-    dataframe_logging(df)
     return df
 
 
@@ -164,14 +168,11 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
     return grouped_by_severity
 
 
+@logger_df
 def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
     """Calculates difference in days between publication date and event date"""
-    logging.info(
-        "Started calculate timedelta between accident and publication dates..."
-    )
     timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
     df_with_timedelta = df.assign(Time_between_publication_and_event=timedelta)
-    dataframe_logging(df_with_timedelta)
     return df_with_timedelta
 
 
@@ -218,9 +219,8 @@ def plot_time_between_publication_and_event(df: pd.DataFrame) -> None:
     plt.show()
 
 
+@logger_df
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    logging.info("Started preprocesing dataset...")
-    dataframe_logging(df)
     df_processed = (
         df.pipe(column_name_replacement, ".", "_")
         .pipe(separate_city_and_state)
@@ -228,8 +228,6 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
         .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
         .pipe(timedelta_between_accident_and_publication)
     )
-    logging.info("Finished preprocesing dataset")
-    dataframe_logging(df)
     return df_processed
 
 
