@@ -66,12 +66,12 @@ def logger_df(func):
     def inner(*args, **kwargs):
         logging.info(f"Started executing function: {func.__name__}")
         output = func(*args, **kwargs)
-        logging.info(
-            f"{func.__name__} function returned dataframe with shape: {output.shape}"
-        )
-        logging.info(
-            f"{func.__name__} function returned dataframe with columns: {', '.join(output.columns)}"
-        )
+        if isinstance(output, pd.DataFrame):
+            logging.info(
+                f"{func.__name__} function returned dataframe with shape: {output.shape}, columns: {', '.join(output.columns)}"
+            )
+        else:
+            logging.info(f"{func.__name__} function returned result: {output}")
         return output
 
     return inner
@@ -136,18 +136,15 @@ def filter_by_period(
     return df[(df[column_name] >= start_year) & (df[column_name] <= end_year)]
 
 
+@logger_df
 def get_accident_amount_by_period(
     df, column_name: str, start_year: int, end_year: int
 ) -> int:
     """Returns accident amount by a given period"""
-    logging.info(
-        f"Started calculate accident amount by period {start_year} - {end_year}"
-    )
     df_by_condition = df[
         (df[column_name] >= start_year) & (df[column_name] <= end_year)
     ]
     amount_of_accidents = len(df_by_condition)
-    logging.info(f"Amount of accidents: {amount_of_accidents}")
     return amount_of_accidents
 
 
@@ -159,12 +156,12 @@ def remove_symbols_and_digits_from_column(
     return df
 
 
+@logger_df
 def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.DataFrame:
     """Returns Injury severity groups and min, max and sum death accidents"""
     grouped_by_severity = df.groupby("Injury_Severity")["Total_Fatal_Injuries"].agg(
         ["min", "max", "sum"]
     )
-    logging.info(f"severity groups statistics:\n {grouped_by_severity}")
     return grouped_by_severity
 
 
@@ -176,18 +173,15 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
     return df_with_timedelta
 
 
+@logger_df
 def get_most_freq_airplane_make_and_type(
     top_makes: pd.Series, top_purpose: pd.Series
 ) -> pd.DataFrame:
     """Function returns manufacturer and type of airplanes that participates in accidents most frequently"""
-    logging.info(
-        " Started calculate manufacturer and type of airplanes that participates in accidents most frequently..."
-    )
     most_freq_make = top_makes.nlargest(1)
     most_freq_purpose = top_purpose.nlargest(1)
     df_most_freq = pd.concat([most_freq_make, most_freq_purpose], axis=0).reset_index()
     df_most_freq.columns = ["Statistics object", "Count"]
-    logging.info(f"Make and purpose statistics:\n {df_most_freq}")
     return df_most_freq
 
 
@@ -231,9 +225,9 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     return df_processed
 
 
+@logger_df
 def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
-    logging.info("Started adding data from weatherbit...")
     temperatures = []
     df = df.tail(5)
     for index, row in df.iterrows():
@@ -248,7 +242,6 @@ def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
         response_dict = api_request_weatherbit_api(params)
         for key in response_dict["data"]:
             temperatures.append(key["temp"])
-    logging.info("Finished adding data from weatherbit!")
     return df.assign(Temperatures_accident_day=temperatures)
 
 
@@ -262,11 +255,6 @@ def api_request_weatherbit_api(parameters):
     except ValueError:
         response_dict = {"data": {"temp": np.nan}}
     return response_dict
-
-
-def dataframe_logging(df):
-    logging.info(f"Column names: {', '.join(df.columns)}")
-    logging.info(f"Dataframe shape (rows, columns): {df.shape}")
 
 
 if __name__ == "__main__":
