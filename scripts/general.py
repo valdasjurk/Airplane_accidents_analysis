@@ -174,26 +174,47 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
 
 
 @logger_df
-def get_most_freq_airplane_make_and_type(
-    top_makes: pd.Series, top_purpose: pd.Series
+def get_most_freq_airplane_make_engine_type_and_flight_purpose(
+    top_makes: pd.Series, top_purpose: pd.Series, top_engine_type: pd.Series
 ) -> pd.DataFrame:
     """Function returns manufacturer and type of airplanes that participates in accidents most frequently"""
-    most_freq_make = top_makes.nlargest(1)
-    most_freq_purpose = top_purpose.nlargest(1)
-    df_most_freq = pd.concat([most_freq_make, most_freq_purpose], axis=0).reset_index()
+    df_most_freq = pd.concat(
+        [top_makes.nlargest(1), top_purpose.nlargest(1), top_engine_type.nlargest(1)],
+        axis=0,
+    ).reset_index()
     df_most_freq.columns = ["Statistics object", "Count"]
+    df_most_freq.index = ["Airplane name", "Airplane purpose", "Engine type"]
     return df_most_freq
 
 
 def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.Series:
-    """Function flight purpose statistics"""
+    """Function return flight purpose with amounts that get into accidents"""
     return df["Purpose_of_flight"].value_counts()
 
 
 def get_airplane_make_statistics(df: pd.DataFrame) -> pd.Series:
-    """Returns top 10 airplane makes that gets into the accidents"""
+    """Function return airplane makes with amounts that get into accidents"""
     df["Make"] = df["Make"].str.lower()
     return df["Make"].value_counts()
+
+
+def get_airplane_engine_type_statistics(df: pd.DataFrame) -> pd.Series:
+    """Function return airplane engine type with amounts that get into accidents"""
+    return df["Engine_Type"].value_counts()
+
+
+def accident_statistics_by_airplane_make_engine_flight_purpose(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    flight_purpose_statistics = get_flight_purpose_statistics(df)
+    airplane_make_statistics = get_airplane_make_statistics(df)
+    airplane_engine_type_statistics = get_airplane_engine_type_statistics(df)
+    result = get_most_freq_airplane_make_engine_type_and_flight_purpose(
+        airplane_make_statistics,
+        flight_purpose_statistics,
+        airplane_engine_type_statistics,
+    )
+    return result
 
 
 def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
@@ -274,14 +295,10 @@ if __name__ == "__main__":
         df_processed, "Event_year", 2020, 2023
     )
 
+    accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
+
     # df_with_external_data = add_data_from_weatherbit_api(df_processed)
     # print(df_with_external_data.head())
-
-    flight_purpose_statistics = get_flight_purpose_statistics(df_processed)
-    airplane_make_statistics = get_airplane_make_statistics(df_processed)
-    get_most_freq_airplane_make_and_type(
-        airplane_make_statistics, flight_purpose_statistics
-    )
 
 
 """ Future Functions for final data representation"""
