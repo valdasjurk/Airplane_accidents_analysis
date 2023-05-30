@@ -253,7 +253,7 @@ def api_request_weatherbit_api(parameters):
         response = api_result.text
         response_dict = json.loads(response)
     except ValueError:
-        response_dict = {"data": {"temp": np.nan}}
+        response_dict = {"data": [{"temp": np.nan}]}
     return response_dict
 
 
