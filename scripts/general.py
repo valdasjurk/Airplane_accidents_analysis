@@ -1,6 +1,5 @@
 # Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
-import json
 import logging
 from datetime import timedelta
 
@@ -251,19 +250,23 @@ def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
     temperatures = []
     df = df.tail(5)
-    for index, row in df.iterrows():
-        start_date = row["Event_Date"].date()
-        end_date = start_date + timedelta(days=1)
-        params = {
-            "key": [config.WEATHERBIT_API_KEY],
-            "start_date": start_date,
-            "end_date": end_date,
-            "city": row["City"],
-        }
-        response_dict = api_request_weatherbit_api(params)
-        for key in response_dict["data"]:
-            temperatures.append(key["temp"])
+    for row in df.itertuples():
+        params = build_weatherbit_api_params(row)
+        response = api_request_weatherbit_api(params)
+        temperatures.append(response)
     return df.assign(Temperatures_accident_day=temperatures)
+
+
+def build_weatherbit_api_params(row) -> dict:
+    start_date = row.Event_Date.date()
+    end_date = start_date + timedelta(days=1)
+    params = {
+        "key": [config.WEATHERBIT_API_KEY],
+        "start_date": start_date,
+        "end_date": end_date,
+        "city": row.City,
+    }
+    return params
 
 
 def api_request_weatherbit_api(parameters):
@@ -271,11 +274,10 @@ def api_request_weatherbit_api(parameters):
     api_base = "https://api.weatherbit.io/v2.0/history/daily?"
     try:
         api_result = requests.get(api_base + method, parameters)
-        response = api_result.text
-        response_dict = json.loads(response)
+        response = api_result.json()
     except ValueError:
-        response_dict = {"data": [{"temp": np.nan}]}
-    return response_dict
+        return np.nan
+    return response["data"][0]["temp"]
 
 
 if __name__ == "__main__":
@@ -297,8 +299,7 @@ if __name__ == "__main__":
 
     accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
 
-    # df_with_external_data = add_data_from_weatherbit_api(df_processed)
-    # print(df_with_external_data.head())
+    df_with_external_data = add_data_from_weatherbit_api(df_processed)
 
 
 """ Future Functions for final data representation"""
