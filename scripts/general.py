@@ -109,7 +109,7 @@ def column_name_replacement(
     df, what_to_replace: str, replacement: str
 ) -> DataFrame[InputSchema]:
     """Replaces symbols, letters in all column names with a given string"""
-    df.columns = df.columns.str.replace(what_to_replace, replacement)
+    df.columns = df.columns.str.replace(what_to_replace, replacement, regex=True)
     return df
 
 
