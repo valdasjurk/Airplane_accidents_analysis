@@ -5,3 +5,4 @@ pycache
 *.png
 *.log
 scripts/config.py
+venv
