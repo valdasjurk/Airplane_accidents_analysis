@@ -174,32 +174,47 @@ def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame
 
 @logger_df
 def get_most_freq_airplane_make_engine_type_and_flight_purpose(
-    top_makes: pd.Series, top_purpose: pd.Series, top_engine_type: pd.Series
+    top_makes: pd.DataFrame, top_purpose: pd.DataFrame, top_engine_type: pd.DataFrame
 ) -> pd.DataFrame:
     """Function returns manufacturer and type of airplanes that participates in accidents most frequently"""
-    df_most_freq = pd.concat(
-        [top_makes.nlargest(1), top_purpose.nlargest(1), top_engine_type.nlargest(1)],
-        axis=0,
-    ).reset_index()
-    df_most_freq.columns = ["Statistics object", "Count"]
-    df_most_freq.index = ["Airplane name", "Airplane purpose", "Engine type"]
-    return df_most_freq
+    df = pd.concat(
+        [top_makes, top_purpose, top_engine_type],
+        axis=1,
+    ).nlargest(1, ["Max_make", "Max_purpose", "Max_type"])
+    return df
 
 
-def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.Series:
+def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return flight purpose with amounts that get into accidents"""
-    return df["Purpose_of_flight"].value_counts()
+    return (
+        df["Purpose_of_flight"]
+        .value_counts()
+        .reset_index()
+        .rename(
+            columns={"index": "Purpose_of_flight", "Purpose_of_flight": "Max_purpose"}
+        )
+    )
 
 
-def get_airplane_make_statistics(df: pd.DataFrame) -> pd.Series:
+def get_airplane_make_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return airplane makes with amounts that get into accidents"""
     df["Make"] = df["Make"].str.lower()
-    return df["Make"].value_counts()
+    return (
+        df["Make"]
+        .value_counts()
+        .reset_index()
+        .rename(columns={"index": "Make", "Make": "Max_make"})
+    )
 
 
-def get_airplane_engine_type_statistics(df: pd.DataFrame) -> pd.Series:
+def get_airplane_engine_type_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return airplane engine type with amounts that get into accidents"""
-    return df["Engine_Type"].value_counts()
+    return (
+        df["Engine_Type"]
+        .value_counts()
+        .reset_index()
+        .rename(columns={"index": "Engine_Type", "Engine_Type": "Max_type"})
+    )
 
 
 def accident_statistics_by_airplane_make_engine_flight_purpose(
@@ -299,7 +314,7 @@ if __name__ == "__main__":
 
     accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
 
-    df_with_external_data = add_data_from_weatherbit_api(df_processed)
+    # df_with_external_data = add_data_from_weatherbit_api(df_processed)
 
 
 """ Future Functions for final data representation"""
