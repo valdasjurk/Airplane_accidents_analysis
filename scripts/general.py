@@ -164,6 +164,15 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
     return grouped_by_severity
 
 
+def get_incidents_per_year(df):
+    accidents_per_year = (
+        df.groupby(["Event_year"], as_index=False)["Event_Id"]
+        .count()
+        .rename(columns={"Event_Id": "Count"})
+    )
+    return accidents_per_year
+
+
 @logger_df
 def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
     """Calculates difference in days between publication date and event date"""
@@ -248,6 +257,11 @@ def plot_time_between_publication_and_event(df: pd.DataFrame) -> None:
     plt.show()
 
 
+def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame) -> None:
+    """plotting histogram of accidents per year"""
+    sns.lineplot(data=df_accidents_per_year, x="Event_year", y="Count", color="#2990EA")
+
+
 @logger_df
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     df_processed = (
@@ -308,6 +322,8 @@ if __name__ == "__main__":
     death_injuries_statistics = get_min_max_sum_death_injuries_by_injury_groups(
         df_processed
     )
+    incidents_per_year = get_incidents_per_year(df_processed)
+
     accidents_by_period = get_accident_amount_by_period(
         df_processed, "Event_year", 2020, 2023
     )
@@ -316,7 +332,8 @@ if __name__ == "__main__":
 
     # df_with_external_data = add_data_from_weatherbit_api(df_processed)
 
-
+    plot_accidents_per_year(incidents_per_year)
+    plt.show()
 """ Future Functions for final data representation"""
 # plot_time_between_publication_and_event(df_processed)
 # save_to_csv(df_temp)
