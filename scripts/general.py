@@ -12,6 +12,8 @@ import requests
 import seaborn as sns
 from pandera.typing import DataFrame, Series
 import config
+import zipfile
+import os
 
 
 class InputSchema(pa.SchemaModel):
@@ -76,24 +78,32 @@ def logger_df(func):
     return inner
 
 
-def download_dataset() -> None:
+def download_kaggle_dataset() -> None:
     kaggle.api.dataset_download_files(
-        dataset="khsamaha/aviation-accident-database-synopses",
-        path="data",
-        unzip=True,
+        dataset=config.AVIATION_DATA_API,
+        path=config.KAGGLE_DATASET_DOWNLOAD_PATH,
+        unzip=False,
         quiet=False,
         force=False,
     )
 
 
+def unzip_file() -> None:
+    with zipfile.ZipFile(config.KAGGLE_DATASET_ZIPPED_FILENAME, "r") as zip_ref:
+        zip_ref.extractall(config.KAGGLE_DATASET_EXTRACT_PATH)
+
+
 @logger_df
-def read_dataset() -> pd.DataFrame:
+def load_dataset() -> pd.DataFrame:
+    path = config.KAGGLE_DATASET_EXTRACTED_FILENAME
+    if not os.path.isfile(path):
+        download_kaggle_dataset()
+        unzip_file()
     df = pd.read_csv(
-        config.RAW_DATA_DIRECTORY,
+        config.KAGGLE_DATASET_EXTRACTED_FILENAME,
         parse_dates=["Event.Date", "Publication.Date"],
         encoding="cp1252",
         low_memory=False,
-        # na_values=" ",
     )
     return df
 
@@ -315,8 +325,7 @@ if __name__ == "__main__":
         format="%(asctime)s %(levelname)-8s %(message)s",
         level=logging.INFO,
     )
-
-    df = read_dataset()
+    df = load_dataset()
     df_processed = preprocese_dataset(df)
 
     death_injuries_statistics = get_min_max_sum_death_injuries_by_injury_groups(
