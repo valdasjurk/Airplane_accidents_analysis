@@ -185,6 +185,19 @@ def get_incidents_per_year(df):
 
 
 @logger_df
+def add_sum_of_total_people_in_accident(df: pd.DataFrame) -> pd.DataFrame:
+    sum_of_people = df[
+        [
+            "Total_Fatal_Injuries",
+            "Total_Serious_Injuries",
+            "Total_Minor_Injuries",
+            "Total_Uninjured",
+        ]
+    ].agg(["sum"], axis=1)
+    return df.assign(Total_people_in_accident=sum_of_people)
+
+
+@logger_df
 def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
     """Calculates difference in days between publication date and event date"""
     timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
@@ -282,6 +295,7 @@ def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
         .pipe(create_year_and_month_column_from_date)
         .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
         .pipe(timedelta_between_accident_and_publication)
+        .pipe(add_sum_of_total_people_in_accident)
     )
     return df_processed
 
@@ -345,6 +359,7 @@ if __name__ == "__main__":
 
     plot_accidents_per_year(incidents_per_year)
     plt.show()
+
 """ Future Functions for final data representation"""
 # plot_time_between_publication_and_event(df_processed)
 # save_to_csv(df_temp)
