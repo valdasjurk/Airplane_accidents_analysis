@@ -174,6 +174,7 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
     return grouped_by_severity
 
 
+@logger_df
 def get_incidents_per_year(df):
     accidents_per_year = (
         df.groupby(["Event_year"], as_index=False)["Event_Id"]
@@ -255,7 +256,7 @@ def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
     plt.figure(1)
     sns.countplot(
         y="State",
-        data=df[df["Country"] == "United States"],
+        data=df[(df["Country"] == "United States") & ((df["State"].str.len() <= 3))],
     )
 
 
