@@ -109,8 +109,8 @@ def load_dataset() -> pd.DataFrame:
 
 
 @logger_df
-def save_to_csv(df: pd.DataFrame) -> None:
-    df.to_csv(config.INTERIM_DIRECTORY, index=False)
+def save_to_csv(df: pd.DataFrame, path=config.INTERIM_DIRECTORY) -> None:
+    df.to_csv(path, index=False)
 
 
 @logger_df
