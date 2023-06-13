@@ -3,109 +3,18 @@
 import logging
 from datetime import timedelta
 
-import kaggle
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pandera as pa
 import requests
 import seaborn as sns
-from pandera.typing import DataFrame, Series
+from load_airplane_accidents_dataset import load_dataset
+from panderas_schemas import Airplanes_dataset_InputSchema
+from pandera.typing import DataFrame
+from utils import logger_df
 import config
-import zipfile
-import os
-
-
-class InputSchema(pa.SchemaModel):
-    Event_Id: Series[str]
-    Investigation_Type: Series[str]
-    Accident_Number: Series[str]
-    Event_Date: Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "EST"}
-    )
-    Location: Series[str] = pa.Field(nullable=True)
-    Country: Series[str] = pa.Field(nullable=True)
-    Latitude: Series[str] = pa.Field(nullable=True)
-    Longitude: Series[str] = pa.Field(nullable=True)
-    Airport_Code: Series[str] = pa.Field(nullable=True)
-    Airport_Name: Series[str] = pa.Field(nullable=True)
-    Injury_Severity: Series[str] = pa.Field(nullable=True)
-    Aircraft_damage: Series[str] = pa.Field(nullable=True)
-    Aircraft_Category: Series[str] = pa.Field(nullable=True)
-    Registration_Number: Series[str] = pa.Field(nullable=True)
-    Make: Series[str] = pa.Field(nullable=True)
-    Model: Series[str] = pa.Field(nullable=True)
-    Amateur_Built: Series[str] = pa.Field(nullable=True)
-    Number_of_Engines: Series[float] = pa.Field(nullable=True)
-    Engine_Type: Series[str] = pa.Field(nullable=True)
-    FAR_Description: Series[str] = pa.Field(nullable=True)
-    Schedule: Series[str] = pa.Field(nullable=True)
-    Purpose_of_flight: Series[str] = pa.Field(nullable=True)
-    Air_carrier: Series[str] = pa.Field(nullable=True)
-    Total_Fatal_Injuries: Series[float] = pa.Field(nullable=True)
-    Total_Serious_Injuries: Series[float] = pa.Field(nullable=True)
-    Total_Minor_Injuries: Series[float] = pa.Field(nullable=True)
-    Total_Uninjured: Series[float] = pa.Field(nullable=True)
-    Weather_Condition: Series[str] = pa.Field(nullable=True)
-    Broad_phase_of_flight: Series[str] = pa.Field(nullable=True)
-    Report_Status: Series[str] = pa.Field(nullable=True)
-    Publication_Date: Series[pd.DatetimeTZDtype] = pa.Field(
-        dtype_kwargs={"unit": "ns", "tz": "EST"}, nullable=True
-    )
-
-    class Config:
-        """Input schema config"""
-
-        coerce = True
-
-
-class OutputSchema(InputSchema):
-    pass
-
-
-def logger_df(func):
-    def inner(*args, **kwargs):
-        logging.info(f"Started executing function: {func.__name__}")
-        output = func(*args, **kwargs)
-        if isinstance(output, pd.DataFrame):
-            logging.info(
-                f"{func.__name__} function returned dataframe with shape: {output.shape}, columns: {', '.join(output.columns)}"
-            )
-        else:
-            logging.info(f"{func.__name__} function returned result: {output}")
-        return output
-
-    return inner
-
-
-def download_kaggle_dataset() -> None:
-    kaggle.api.dataset_download_files(
-        dataset=config.AVIATION_DATA_API,
-        path=config.KAGGLE_DATASET_DOWNLOAD_PATH,
-        unzip=False,
-        quiet=False,
-        force=False,
-    )
-
-
-def unzip_file() -> None:
-    with zipfile.ZipFile(config.KAGGLE_DATASET_ZIPPED_FILENAME, "r") as zip_ref:
-        zip_ref.extractall(config.KAGGLE_DATASET_EXTRACT_PATH)
-
-
-@logger_df
-def load_dataset() -> pd.DataFrame:
-    path = config.KAGGLE_DATASET_EXTRACTED_FILENAME
-    if not os.path.isfile(path):
-        download_kaggle_dataset()
-        unzip_file()
-    df = pd.read_csv(
-        config.KAGGLE_DATASET_EXTRACTED_FILENAME,
-        parse_dates=["Event.Date", "Publication.Date"],
-        encoding="cp1252",
-        low_memory=False,
-    )
-    return df
 
 
 @logger_df
@@ -117,7 +26,7 @@ def save_to_csv(df: pd.DataFrame, path=config.INTERIM_DIRECTORY) -> None:
 @pa.check_types
 def column_name_replacement(
     df, what_to_replace: str, replacement: str
-) -> DataFrame[InputSchema]:
+) -> DataFrame[Airplanes_dataset_InputSchema]:
     """Replaces symbols, letters in all column names with a given string"""
     df.columns = df.columns.str.replace(what_to_replace, replacement, regex=True)
     return df
