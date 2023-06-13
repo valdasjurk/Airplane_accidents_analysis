@@ -1,51 +1,16 @@
 # Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
-import logging
 from datetime import timedelta
 
-
+import config
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pandera as pa
 import requests
 import seaborn as sns
 from load_airplane_accidents_dataset import load_dataset
-from panderas_schemas import Airplanes_dataset_InputSchema
-from pandera.typing import DataFrame
+from preprocesse_dataset import preprocese_dataset
 from utils import logger_df
-import config
-
-
-@logger_df
-def save_to_csv(df: pd.DataFrame, path=config.INTERIM_DIRECTORY) -> None:
-    df.to_csv(path, index=False)
-
-
-@logger_df
-@pa.check_types
-def column_name_replacement(
-    df, what_to_replace: str, replacement: str
-) -> DataFrame[Airplanes_dataset_InputSchema]:
-    """Replaces symbols, letters in all column names with a given string"""
-    df.columns = df.columns.str.replace(what_to_replace, replacement, regex=True)
-    return df
-
-
-@logger_df
-def separate_city_and_state(df: pd.DataFrame) -> pd.DataFrame:
-    """Separates city and state"""
-    df_city_state = df["Location"].str.split(",", n=1, expand=True)
-    dfr = df.assign(City=df_city_state[0], State=df_city_state[1])
-    return dfr
-
-
-@logger_df
-def create_year_and_month_column_from_date(df: pd.DataFrame) -> pd.DataFrame:
-    """Separates year and month from accident date"""
-    df = df.assign(Event_year=df["Event_Date"].dt.year)
-    df = df.assign(Event_month=df["Event_Date"].dt.month)
-    return df
 
 
 def filter_by_period(
@@ -66,14 +31,6 @@ def get_accident_amount_by_period(
     return amount_of_accidents
 
 
-def remove_symbols_and_digits_from_column(
-    df: pd.DataFrame, column_name: str
-) -> pd.DataFrame:
-    df[column_name] = df[column_name].str.replace(r"\W", "", regex=True)
-    df[column_name] = df[column_name].str.replace(r"\d+", "", regex=True)
-    return df
-
-
 @logger_df
 def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.DataFrame:
     """Returns Injury severity groups and min, max and sum death accidents"""
@@ -91,27 +48,6 @@ def get_incidents_per_year(df):
         .rename(columns={"Event_Id": "Count"})
     )
     return accidents_per_year
-
-
-@logger_df
-def add_sum_of_total_people_in_accident(df: pd.DataFrame) -> pd.DataFrame:
-    sum_of_people = df[
-        [
-            "Total_Fatal_Injuries",
-            "Total_Serious_Injuries",
-            "Total_Minor_Injuries",
-            "Total_Uninjured",
-        ]
-    ].agg(["sum"], axis=1)
-    return df.assign(Total_people_in_accident=sum_of_people)
-
-
-@logger_df
-def timedelta_between_accident_and_publication(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculates difference in days between publication date and event date"""
-    timedelta = (df["Publication_Date"] - df["Event_Date"]).dt.days
-    df_with_timedelta = df.assign(Time_between_publication_and_event=timedelta)
-    return df_with_timedelta
 
 
 @logger_df
@@ -197,19 +133,6 @@ def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame) -> None:
 
 
 @logger_df
-def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    df_processed = (
-        df.pipe(column_name_replacement, ".", "_")
-        .pipe(separate_city_and_state)
-        .pipe(create_year_and_month_column_from_date)
-        .pipe(remove_symbols_and_digits_from_column, "Injury_Severity")
-        .pipe(timedelta_between_accident_and_publication)
-        .pipe(add_sum_of_total_people_in_accident)
-    )
-    return df_processed
-
-
-@logger_df
 def add_data_from_weatherbit_api(df: pd.DataFrame) -> pd.DataFrame:
     """Reads data (temperature by day) from Weatherbit.io regarding accident data"""
     temperatures = []
@@ -245,11 +168,6 @@ def api_request_weatherbit_api(parameters):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        filename=config.LOGGER_FILENAME,
-        format="%(asctime)s %(levelname)-8s %(message)s",
-        level=logging.INFO,
-    )
     df = load_dataset()
     df_processed = preprocese_dataset(df)
 
@@ -268,10 +186,3 @@ if __name__ == "__main__":
 
     plot_accidents_per_year(incidents_per_year)
     plt.show()
-
-""" Future Functions for final data representation"""
-# plot_time_between_publication_and_event(df_processed)
-# save_to_csv(df_temp)
-# create_visualization = visualize(df)
-# final_report_df = create_report(df)
-# df.to_excel("sdfsdf.xlsx")
