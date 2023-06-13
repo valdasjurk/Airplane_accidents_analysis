@@ -29,11 +29,12 @@ def get_accidents_by_period(df, start, end):
     return accidents_by_period
 
 
-def plot_show_or_save(how, filename="output/graphs/output.jpg"):
+def plot_show_or_save(plot, how, filename="output/graphs/output.jpg"):
+    fig = plot.get_figure()
     if how == "show":
         plt.show()
     elif how == "save":
-        plt.savefig(filename)
+        fig.savefig(filename)
 
 
 if __name__ == "__main__":
@@ -99,8 +100,9 @@ if __name__ == "__main__":
             df = load_preprocessed_data()
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
-        plot_accidents_amount_by_state(df)
-        plot_show_or_save(args.how, filename="output/graphs/state.jpg")
+        plot = plot_accidents_amount_by_state(df)
+        fig = plot.get_figure()
+        plot_show_or_save(fig, args.how, filename="output/graphs/state.jpg")
 
     if args.visualise_time_between_publication_and_event:
         df = pd.DataFrame()
@@ -108,8 +110,8 @@ if __name__ == "__main__":
             df = load_preprocessed_data()
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
-        plot_time_between_publication_and_event(df)
-        plot_show_or_save(args.how, filename="output/graphs/timedelta.jpg")
+        plot = plot_time_between_publication_and_event(df)
+        plot_show_or_save(plot, args.how, filename="output/graphs/timedelta.jpg")
 
     if args.visualise_accidents_per_year:
         df = pd.DataFrame()
@@ -117,5 +119,7 @@ if __name__ == "__main__":
             df = load_preprocessed_data()
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
-        plot_accidents_per_year(df)
-        plot_show_or_save(args.how, filename="output/graphs/accidents_per_year.jpg")
+        plot = plot_accidents_per_year(df)
+        plot_show_or_save(
+            plot, args.how, filename="output/graphs/accidents_per_year.jpg"
+        )
