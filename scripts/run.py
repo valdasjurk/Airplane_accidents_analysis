@@ -1,17 +1,17 @@
-from general import (
-    load_dataset,
-    preprocese_dataset,
-    get_accident_amount_by_period,
-    save_to_csv,
-    accident_statistics_by_airplane_make_engine_flight_purpose,
-    plot_accidents_amount_by_state,
-    plot_time_between_publication_and_event,
-    plot_accidents_per_year,
-)
 import argparse
+
 import config
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
+from general import (
+    accident_statistics_by_airplane_make_engine_flight_purpose,
+    get_accident_amount_by_period,
+    plot_accidents_amount_by_state,
+    plot_accidents_per_year,
+    plot_time_between_publication_and_event,
+)
+from load_and_save_airplane_accidents_dataset import load_dataset, save_to_csv
+from preprocesse_dataset import preprocese_dataset
 
 
 def prepare_and_save_data():
@@ -101,8 +101,7 @@ if __name__ == "__main__":
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
         plot = plot_accidents_amount_by_state(df)
-        fig = plot.get_figure()
-        plot_show_or_save(fig, args.how, filename="output/graphs/state.jpg")
+        plot_show_or_save(plot, args.how, filename="output/graphs/state.jpg")
 
     if args.visualise_time_between_publication_and_event:
         df = pd.DataFrame()
