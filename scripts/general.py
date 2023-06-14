@@ -4,10 +4,11 @@
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
-from load_airplane_accidents_dataset import load_dataset
+from load_and_save_airplane_accidents_dataset import load_dataset
 from preprocesse_dataset import preprocese_dataset
 from utils import logger_df
-from weatherbit_api import add_data_from_weatherbit_api
+
+# from weatherbit_api import add_data_from_weatherbit_api
 
 
 def filter_by_period(
@@ -144,4 +145,4 @@ if __name__ == "__main__":
 
     accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
 
-    df_with_external_data = add_data_from_weatherbit_api(df_processed)
+    # df_with_external_data = add_data_from_weatherbit_api(df_processed)
