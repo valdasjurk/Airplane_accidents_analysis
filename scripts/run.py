@@ -19,7 +19,7 @@ from preprocesse_dataset import preprocese_dataset
 def prepare_and_save_data():
     df = load_dataset()
     df_processed = preprocese_dataset(df)
-    save_to_csv(df_processed)
+    save_to_csv(df_processed, path=config.INTERIM_DIRECTORY)
 
 
 def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
@@ -37,6 +37,14 @@ def plot_show_or_save(plot: plt.Axes, how="save", filename="output/graphs/output
         plt.show()
     elif how == "save":
         fig.savefig(filename)
+
+
+def present_results(results, how: str, name: str) -> None:
+    if how == "print":
+        print(results)
+    else:
+        path = config.PROCESSED_DIRECTORY
+        save_to_csv(results, path, name)
 
 
 if __name__ == "__main__":
@@ -92,12 +100,16 @@ if __name__ == "__main__":
     if args.get_accidents_by_period:
         df = load_preprocessed_data()
         results = get_accident_amount_by_period(df, args.start, args.end)
-        print(results)
+        results_df = pd.DataFrame(
+            {"Start_year": args.start, "End_year": args.end, "Accidents_sum": results},
+            index=[0],
+        )
+        present_results(results_df, args.how, name="Indicents_per_year.csv")
 
     if args.get_statistics_airplane_make_engine_flight_purpose:
         df = load_preprocessed_data()
         results = accident_statistics_by_airplane_make_engine_flight_purpose(df)
-        print(results)
+        present_results(results, args.how, name="Statistics_make_engine_purpose.csv")
 
     if args.visualise_accidents_amount_by_state:
         df = load_preprocessed_data()
@@ -120,9 +132,9 @@ if __name__ == "__main__":
     if args.get_injury_statistics:
         df = load_preprocessed_data()
         results = get_min_max_sum_death_injuries_by_injury_groups(df)
-        print(results)
+        present_results(results, args.how, name="Injury_statistics.csv")
 
     if args.get_accidents_sum_by_year:
         df = load_preprocessed_data()
         results = get_incidents_per_year(df)
-        print(results)
+        present_results(results, args.how, name="Accidents_sum_by_year.csv")
