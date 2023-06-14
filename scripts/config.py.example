@@ -1,6 +1,13 @@
+AVIATION_DATA_API = "khsamaha/aviation-accident-database-synopses"
+KAGGLE_DATASET_DOWNLOAD_PATH = "data/raw/zipped"
+KAGGLE_DATASET_ZIPPED_FILENAME = (
+    KAGGLE_DATASET_DOWNLOAD_PATH + "/aviation-accident-database-synopses.zip"
+)
+KAGGLE_DATASET_EXTRACT_PATH = "data/raw/extracted"
+KAGGLE_DATASET_EXTRACTED_FILENAME = KAGGLE_DATASET_EXTRACT_PATH + "/AviationData.csv"
+
 AIRLABS_API_KEY = "REPLACE THIS WITH KEY..."
 WEATHERBIT_API_KEY = "REPLACE THIS WITH KEY..."
 
-RAW_DATA_DIRECTORY = "data/raw/AviationData.csv"
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
 LOGGER_FILENAME = "logger.log"
