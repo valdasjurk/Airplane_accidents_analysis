@@ -7,8 +7,7 @@ import seaborn as sns
 from load_and_save_airplane_accidents_dataset import load_dataset
 from preprocesse_dataset import preprocese_dataset
 from utils import logger_df
-
-# from weatherbit_api import add_data_from_weatherbit_api
+from weatherbit_api import add_data_from_weatherbit_api
 
 
 def filter_by_period(
@@ -18,12 +17,10 @@ def filter_by_period(
 
 
 @logger_df
-def get_accident_amount_by_period(
-    df, column_name: str, start_year: int, end_year: int
-) -> int:
+def get_accident_amount_by_period(df, start_year: int, end_year: int) -> int:
     """Returns accident amount by a given period"""
     df_by_condition = df[
-        (df[column_name] >= start_year) & (df[column_name] <= end_year)
+        (df["Event_year"] >= start_year) & (df["Event_year"] <= end_year)
     ]
     amount_of_accidents = len(df_by_condition)
     return amount_of_accidents
@@ -40,6 +37,7 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
 
 @logger_df
 def get_incidents_per_year(df: pd.DataFrame) -> pd.DataFrame:
+    """Function returns dataframe with historical airplane accidents each year"""
     accidents_per_year = (
         df.groupby(["Event_year"], as_index=False)["Event_Id"]
         .count()
@@ -144,12 +142,11 @@ if __name__ == "__main__":
         df_processed
     )
     incidents_per_year = get_incidents_per_year(df_processed)
-    print(incidents_per_year)
 
-    accidents_by_period = get_accident_amount_by_period(
-        df_processed, "Event_year", 2020, 2023
+    accidents_by_period = get_accident_amount_by_period(df_processed, 2020, 2023)
+
+    accident_statistics = accident_statistics_by_airplane_make_engine_flight_purpose(
+        df_processed
     )
 
-    accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
-
-    # df_with_external_data = add_data_from_weatherbit_api(df_processed)
+    weatherbit_api_data = add_data_from_weatherbit_api(df_processed)
