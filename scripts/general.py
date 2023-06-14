@@ -107,27 +107,29 @@ def accident_statistics_by_airplane_make_engine_flight_purpose(
     return result
 
 
-def plot_accidents_amount_by_state(df: pd.DataFrame) -> None:
+def plot_accidents_amount_by_state(df: pd.DataFrame) -> plt.Axes:
     """plotting events by states count"""
-    plt.figure(1)
-    sns.countplot(
+    plot = sns.countplot(
         y="State",
         data=df[(df["Country"] == "United States") & ((df["State"].str.len() <= 3))],
     )
+    return plot
 
 
-def plot_time_between_publication_and_event(df: pd.DataFrame) -> None:
+def plot_time_between_publication_and_event(df: pd.DataFrame) -> plt.Axes:
     """plotting histogram of time between publication and event"""
-    plt.figure(2)
-    df["Time_between_publication_and_event"].plot.hist(
+    plot = df["Time_between_publication_and_event"].plot.hist(
         bins=12, legend=True, xlim=(0, 6000)
     )
+    return plot
 
 
-def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame) -> None:
+def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame, ax=None) -> plt.Axes:
     """plotting histogram of accidents per year"""
-    plt.figure(3)
-    sns.lineplot(data=df_accidents_per_year, x="Event_year", y="Count", color="#2990EA")
+    plot = sns.lineplot(
+        data=df_accidents_per_year, x="Event_year", y="Count", color="#2990EA", ax=ax
+    )
+    return plot
 
 
 if __name__ == "__main__":
@@ -146,3 +148,4 @@ if __name__ == "__main__":
     accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
 
     # df_with_external_data = add_data_from_weatherbit_api(df_processed)
+
