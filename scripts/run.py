@@ -7,6 +7,7 @@ from general import (
     accident_statistics_by_airplane_make_engine_flight_purpose,
     get_accident_amount_by_period,
     get_min_max_sum_death_injuries_by_injury_groups,
+    get_incidents_per_year,
     plot_accidents_amount_by_state,
     plot_accidents_per_year,
     plot_time_between_publication_and_event,
@@ -25,7 +26,7 @@ def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
     return pd.read_csv(path, low_memory=False)
 
 
-def plot_show_or_save(plot: plt.Axes, how: str, filename="output/graphs/output.jpg"):
+def plot_show_or_save(plot: plt.Axes, how="save", filename="output/graphs/output.jpg"):
     fig = plot.get_figure()
     if how == "show":
         plt.show()
@@ -63,6 +64,12 @@ if __name__ == "__main__":
         help="Calculate min, max and sum death accidents by injury severity groups",
         action="store_true",
     )
+    parser.add_argument(
+        "--get_accidents_sum_by_year",
+        help="Calculate airplane indicents sum per year",
+        action="store_true",
+    )
+
     parser.add_argument("--visualise_accidents_amount_by_state", action="store_true")
     parser.add_argument(
         "--visualise_time_between_publication_and_event", action="store_true"
@@ -118,7 +125,8 @@ if __name__ == "__main__":
             df = load_preprocessed_data()
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
-        plot = plot_accidents_per_year(df)
+        accidents_per_year_df = get_incidents_per_year(df)
+        plot = plot_accidents_per_year(accidents_per_year_df)
         plot_show_or_save(
             plot, args.how, filename="output/graphs/accidents_per_year.jpg"
         )
@@ -130,4 +138,13 @@ if __name__ == "__main__":
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
         results = get_min_max_sum_death_injuries_by_injury_groups(df)
+        print(results)
+
+    if args.get_accidents_sum_by_year:
+        df = pd.DataFrame()
+        try:
+            df = load_preprocessed_data()
+        except FileNotFoundError:
+            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        results = get_incidents_per_year(df)
         print(results)
