@@ -29,21 +29,21 @@ Preprocesse and store dataset to data/interim. Function downloads dataset if it 
 ```
 python run.py --prepare_and_save_data
 ```
-Get death injuries statistics, accidents by period
+Get death injuries statistics, accidents by period. Command can go together with "how" argument which has options to print or save results.
 ```
-python run.py --get_accidents_by_period
+python run.py --get_accidents_by_period --how ["print", "save"]
 ```
-Get airplanes makes, engine type and flight type that gets into accidents most frequently.
+Get airplanes makes, engine type and flight type that gets into accidents most frequently. Command can go together with "how" argument which has options to print or save results.
 ```
-python run.py --get_statistics_airplane_make_engine_flight_purpose
+python run.py --get_statistics_airplane_make_engine_flight_purpose --how ["print", "save"]
 ```
-Get min, max and sum death accidents by injury severity groups.
+Get min, max and sum death accidents by injury severity groups. Command can go together with "how" argument which has options to print or save results.
 ```
-python run.py --get_injury_statistics
+python run.py --get_injury_statistics --how ["print", "save"]
 ```
-Get accidents per year data from 1982 to 2022.
+Get accidents per year data from 1982 to 2022. Command can go together with "how" argument which has options to print or save results.
 ```
-python run.py --get_accidents_sum_by_year
+python run.py --get_accidents_sum_by_year --how ["print", "save"]
 ```
 Get visualisation of airplane accidents amount by US state. Command goes together with "how" argument which has options to show or save the figure.
 ```
