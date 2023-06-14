@@ -6,6 +6,7 @@ import pandas as pd
 from general import (
     accident_statistics_by_airplane_make_engine_flight_purpose,
     get_accident_amount_by_period,
+    get_min_max_sum_death_injuries_by_injury_groups,
     plot_accidents_amount_by_state,
     plot_accidents_per_year,
     plot_time_between_publication_and_event,
@@ -22,11 +23,6 @@ def prepare_and_save_data():
 
 def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
     return pd.read_csv(path, low_memory=False)
-
-
-def get_accidents_by_period(df: pd.DataFrame, start: int, end: int) -> int:
-    accidents_by_period = get_accident_amount_by_period(df, "Event_year", start, end)
-    return accidents_by_period
 
 
 def plot_show_or_save(plot: plt.Axes, how: str, filename="output/graphs/output.jpg"):
@@ -62,7 +58,11 @@ if __name__ == "__main__":
         help="Calculate most frequent airplane make, engine type and flight purpose that gets into accidents",
         action="store_true",
     )
-
+    parser.add_argument(
+        "--get_injury_statistics",
+        help="Calculate min, max and sum death accidents by injury severity groups",
+        action="store_true",
+    )
     parser.add_argument("--visualise_accidents_amount_by_state", action="store_true")
     parser.add_argument(
         "--visualise_time_between_publication_and_event", action="store_true"
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     if args.get_accidents_by_period:
         try:
             df = load_preprocessed_data()
-            results = get_accidents_by_period(df, args.start, args.end)
+            results = get_accident_amount_by_period(df, args.start, args.end)
             print(results)
         except FileNotFoundError:
             print("No prepared data found. Did you run --prepare_and_save_data ?")
@@ -122,3 +122,12 @@ if __name__ == "__main__":
         plot_show_or_save(
             plot, args.how, filename="output/graphs/accidents_per_year.jpg"
         )
+
+    if args.get_injury_statistics:
+        df = pd.DataFrame()
+        try:
+            df = load_preprocessed_data()
+        except FileNotFoundError:
+            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        results = get_min_max_sum_death_injuries_by_injury_groups(df)
+        print(results)
