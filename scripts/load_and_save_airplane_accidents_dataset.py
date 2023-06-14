@@ -28,6 +28,7 @@ def load_dataset() -> pd.DataFrame:
     df = pd.read_csv(
         config.KAGGLE_DATASET_EXTRACTED_FILENAME,
         parse_dates=["Event.Date", "Publication.Date"],
+        infer_datetime_format=True,
         encoding="cp1252",
         low_memory=False,
     )
