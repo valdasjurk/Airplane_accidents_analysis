@@ -20,16 +20,16 @@ def prepare_and_save_data():
     save_to_csv(df_processed)
 
 
-def load_preprocessed_data(path=config.INTERIM_DIRECTORY):
+def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
     return pd.read_csv(path, low_memory=False)
 
 
-def get_accidents_by_period(df, start, end):
+def get_accidents_by_period(df: pd.DataFrame, start: int, end: int) -> int:
     accidents_by_period = get_accident_amount_by_period(df, "Event_year", start, end)
     return accidents_by_period
 
 
-def plot_show_or_save(plot, how, filename="output/graphs/output.jpg"):
+def plot_show_or_save(plot: plt.Axes, how: str, filename="output/graphs/output.jpg"):
     fig = plot.get_figure()
     if how == "show":
         plt.show()

@@ -19,7 +19,7 @@ def add_data_from_weatherbit_api(df: pd.DataFrame, year=2022, month=12) -> pd.Da
     return df.assign(Temperatures_accident_day=temperatures)
 
 
-def _build_weatherbit_api_params(row) -> dict:
+def _build_weatherbit_api_params(row: pd.DataFrame) -> dict:
     start_date = row.Event_Date.date()
     end_date = start_date + timedelta(days=1)
     params = {
@@ -31,7 +31,7 @@ def _build_weatherbit_api_params(row) -> dict:
     return params
 
 
-def _api_request_weatherbit_api(parameters):
+def _api_request_weatherbit_api(parameters: dict) -> str:
     method = "ping"
     api_base = "https://api.weatherbit.io/v2.0/history/daily?"
     try:

@@ -3,6 +3,7 @@ import zipfile
 import os
 import config
 import pandas as pd
+from utils import logger_df
 
 
 def download_kaggle_dataset() -> None:
@@ -20,6 +21,7 @@ def unzip_file() -> None:
         zip_ref.extractall(config.KAGGLE_DATASET_EXTRACT_PATH)
 
 
+@logger_df
 def load_dataset() -> pd.DataFrame:
     path = config.KAGGLE_DATASET_EXTRACTED_FILENAME
     if not os.path.isfile(path):

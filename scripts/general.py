@@ -39,7 +39,7 @@ def get_min_max_sum_death_injuries_by_injury_groups(df: pd.DataFrame) -> pd.Data
 
 
 @logger_df
-def get_incidents_per_year(df):
+def get_incidents_per_year(df: pd.DataFrame) -> pd.DataFrame:
     accidents_per_year = (
         df.groupby(["Event_year"], as_index=False)["Event_Id"]
         .count()
@@ -60,6 +60,7 @@ def get_most_freq_airplane_make_engine_type_and_flight_purpose(
     return df
 
 
+@logger_df
 def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return flight purpose with amounts that get into accidents"""
     return (
@@ -72,6 +73,7 @@ def get_flight_purpose_statistics(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+@logger_df
 def get_airplane_make_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return airplane makes with amounts that get into accidents"""
     df["Make"] = df["Make"].str.lower()
@@ -83,6 +85,7 @@ def get_airplane_make_statistics(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+@logger_df
 def get_airplane_engine_type_statistics(df: pd.DataFrame) -> pd.DataFrame:
     """Function return airplane engine type with amounts that get into accidents"""
     return (
@@ -93,6 +96,7 @@ def get_airplane_engine_type_statistics(df: pd.DataFrame) -> pd.DataFrame:
     )
 
 
+@logger_df
 def accident_statistics_by_airplane_make_engine_flight_purpose(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
@@ -124,10 +128,10 @@ def plot_time_between_publication_and_event(df: pd.DataFrame) -> plt.Axes:
     return plot
 
 
-def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame, ax=None) -> plt.Axes:
+def plot_accidents_per_year(df_accidents_per_year: pd.DataFrame) -> plt.Axes:
     """plotting histogram of accidents per year"""
     plot = sns.lineplot(
-        data=df_accidents_per_year, x="Event_year", y="Count", color="#2990EA", ax=ax
+        data=df_accidents_per_year, x="Event_year", y="Count", color="#2990EA"
     )
     return plot
 
@@ -140,6 +144,7 @@ if __name__ == "__main__":
         df_processed
     )
     incidents_per_year = get_incidents_per_year(df_processed)
+    print(incidents_per_year)
 
     accidents_by_period = get_accident_amount_by_period(
         df_processed, "Event_year", 2020, 2023
@@ -148,4 +153,3 @@ if __name__ == "__main__":
     accident_statistics_by_airplane_make_engine_flight_purpose(df_processed)
 
     # df_with_external_data = add_data_from_weatherbit_api(df_processed)
-
