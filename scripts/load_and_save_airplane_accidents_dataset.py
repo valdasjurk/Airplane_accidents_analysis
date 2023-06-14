@@ -32,3 +32,7 @@ def load_dataset() -> pd.DataFrame:
         low_memory=False,
     )
     return df
+
+
+def save_to_csv(df: pd.DataFrame, path=config.INTERIM_DIRECTORY) -> None:
+    df.to_csv(path, index=False)
