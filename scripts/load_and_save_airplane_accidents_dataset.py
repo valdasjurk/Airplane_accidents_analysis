@@ -37,5 +37,6 @@ def load_dataset() -> pd.DataFrame:
     return df
 
 
-def save_to_csv(df: pd.DataFrame, path=config.INTERIM_DIRECTORY) -> None:
-    df.to_csv(path, index=False)
+def save_to_csv(df: pd.DataFrame, path=config.PROCESSED_DIRECTORY, add="") -> None:
+    path_final = path + add
+    df.to_csv(path_final, index=False)
