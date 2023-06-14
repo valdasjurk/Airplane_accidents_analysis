@@ -5,5 +5,6 @@ pycache
 *.png
 *.log
 *.zip
+*.jpg
 scripts/config.py
 venv
