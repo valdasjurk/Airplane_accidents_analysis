@@ -23,7 +23,12 @@ def prepare_and_save_data():
 
 
 def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
-    return pd.read_csv(path, low_memory=False)
+    df = pd.DataFrame()
+    try:
+        df = pd.read_csv(path, low_memory=False)
+    except FileNotFoundError:
+        print("No prepared data found. Did you run --prepare_and_save_data ?")
+    return df
 
 
 def plot_show_or_save(plot: plt.Axes, how="save", filename="output/graphs/output.jpg"):
@@ -85,46 +90,27 @@ if __name__ == "__main__":
         prepare_and_save_data()
 
     if args.get_accidents_by_period:
-        try:
-            df = load_preprocessed_data()
-            results = get_accident_amount_by_period(df, args.start, args.end)
-            print(results)
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
+        results = get_accident_amount_by_period(df, args.start, args.end)
+        print(results)
 
     if args.get_statistics_airplane_make_engine_flight_purpose:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         results = accident_statistics_by_airplane_make_engine_flight_purpose(df)
         print(results)
 
     if args.visualise_accidents_amount_by_state:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         plot = plot_accidents_amount_by_state(df)
         plot_show_or_save(plot, args.how, filename="output/graphs/state.jpg")
 
     if args.visualise_time_between_publication_and_event:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         plot = plot_time_between_publication_and_event(df)
         plot_show_or_save(plot, args.how, filename="output/graphs/timedelta.jpg")
 
     if args.visualise_accidents_per_year:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         accidents_per_year_df = get_incidents_per_year(df)
         plot = plot_accidents_per_year(accidents_per_year_df)
         plot_show_or_save(
@@ -132,19 +118,11 @@ if __name__ == "__main__":
         )
 
     if args.get_injury_statistics:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         results = get_min_max_sum_death_injuries_by_injury_groups(df)
         print(results)
 
     if args.get_accidents_sum_by_year:
-        df = pd.DataFrame()
-        try:
-            df = load_preprocessed_data()
-        except FileNotFoundError:
-            print("No prepared data found. Did you run --prepare_and_save_data ?")
+        df = load_preprocessed_data()
         results = get_incidents_per_year(df)
         print(results)
