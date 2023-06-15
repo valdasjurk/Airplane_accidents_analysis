@@ -1,13 +1,5 @@
 import logging
 import pandas as pd
-import config
-
-
-logging.basicConfig(
-    filename=config.LOGGER_FILENAME,
-    format="%(asctime)s %(levelname)-8s %(message)s",
-    level=logging.INFO,
-)
 
 
 def logger_df(func):
