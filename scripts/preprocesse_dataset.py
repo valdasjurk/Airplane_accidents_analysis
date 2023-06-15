@@ -3,6 +3,14 @@ import pandera as pa
 from pandera.typing import DataFrame
 from panderas_schemas import Airplanes_dataset_InputSchema
 from utils import logger_df
+import logging
+import config
+
+logging.basicConfig(
+    filename=config.LOGGER_FILENAME,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    level=logging.INFO,
+)
 
 
 @logger_df

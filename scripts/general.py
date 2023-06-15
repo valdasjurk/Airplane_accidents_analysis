@@ -1,6 +1,9 @@
 # Source: https://www.kaggle.com/datasets/khsamaha/aviation-accident-database-synopses
 
 
+import logging
+
+import config
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -8,6 +11,12 @@ from load_and_save_airplane_accidents_dataset import load_dataset
 from preprocesse_dataset import preprocese_dataset
 from utils import logger_df
 from weatherbit_api import add_data_from_weatherbit_api
+
+logging.basicConfig(
+    filename=config.LOGGER_FILENAME,
+    format="%(asctime)s %(levelname)-8s %(message)s",
+    level=logging.INFO,
+)
 
 
 def filter_by_period(
