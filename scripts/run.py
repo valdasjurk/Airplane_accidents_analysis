@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 import config
 import matplotlib.pyplot as plt
@@ -6,8 +7,8 @@ import pandas as pd
 from general import (
     accident_statistics_by_airplane_make_engine_flight_purpose,
     get_accident_amount_by_period,
-    get_min_max_sum_death_injuries_by_injury_groups,
     get_incidents_per_year,
+    get_min_max_sum_death_injuries_by_injury_groups,
     plot_accidents_amount_by_state,
     plot_accidents_per_year,
     plot_time_between_publication_and_event,
@@ -28,6 +29,7 @@ def load_preprocessed_data(path=config.INTERIM_DIRECTORY) -> pd.DataFrame:
         df = pd.read_csv(path, low_memory=False)
     except FileNotFoundError:
         print("No prepared data found. Did you run --prepare_and_save_data ?")
+        sys.exit(1)
     return df
 
 
