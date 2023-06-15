@@ -10,4 +10,5 @@ AIRLABS_API_KEY = "REPLACE THIS WITH KEY..."
 WEATHERBIT_API_KEY = "REPLACE THIS WITH KEY..."
 
 INTERIM_DIRECTORY = "data/interim/AviationData_preprocessed.csv"
+PROCESSED_DIRECTORY = "data/processed/"
 LOGGER_FILENAME = "logger.log"
