@@ -54,7 +54,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
 
     parser.add_argument(
-        "--load_dataset", help="Download kaggle dataset", action="store_true"
+        "--download_dataset", help="Download kaggle dataset", action="store_true"
     )
     parser.add_argument(
         "--prepare_and_save_data",
@@ -93,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument("--how", type=str)
     args = parser.parse_args()
 
-    if args.load_dataset:
+    if args.download_dataset:
         load_dataset()
 
     if args.prepare_and_save_data:
