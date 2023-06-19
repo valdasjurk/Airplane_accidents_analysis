@@ -1,7 +1,5 @@
 import pandas as pd
-import pandera as pa
-from pandera.typing import DataFrame
-from panderas_schemas import Airplanes_dataset_InputSchema
+from panderas_schemas import validate_df
 from utils import logger_df
 import logging
 import config
@@ -14,10 +12,9 @@ logging.basicConfig(
 
 
 @logger_df
-@pa.check_types
 def _column_name_replacement(
     df, what_to_replace: str, replacement: str
-) -> DataFrame[Airplanes_dataset_InputSchema]:
+) -> pd.DataFrame:
     """Replaces symbols, letters in all column names with a given string"""
     df.columns = df.columns.str.replace(what_to_replace, replacement, regex=True)
     return df
@@ -73,6 +70,7 @@ def _add_sum_of_total_people_in_accident(df: pd.DataFrame) -> pd.DataFrame:
 def preprocese_dataset(df: pd.DataFrame) -> pd.DataFrame:
     df_processed = (
         df.pipe(_column_name_replacement, ".", "_")
+        .pipe(validate_df)
         .pipe(_separate_city_and_state)
         .pipe(_create_year_and_month_column_from_date)
         .pipe(_remove_symbols_and_digits_from_column, "Injury_Severity")
