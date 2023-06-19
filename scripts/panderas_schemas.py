@@ -1,6 +1,7 @@
-from pandera.typing import Series
-import pandera as pa
 import pandas as pd
+import pandera as pa
+from pandera.typing import DataFrame, Series
+from utils import logger_df
 
 
 class Airplanes_dataset_InputSchema(pa.SchemaModel):
@@ -44,3 +45,11 @@ class Airplanes_dataset_InputSchema(pa.SchemaModel):
         """Input schema config"""
 
         coerce = True
+
+
+@logger_df
+@pa.check_types
+def validate_df(
+    df: DataFrame[Airplanes_dataset_InputSchema],
+) -> DataFrame[Airplanes_dataset_InputSchema]:
+    return df
