@@ -1,9 +1,9 @@
-from general import (
-    create_year_and_month_column_from_date,
-    timedelta_between_accident_and_publication,
-    remove_symbols_and_digits_from_column,
-    separate_city_and_state,
-    column_name_replacement,
+from preprocesse_dataset import (
+    _create_year_and_month_column_from_date,
+    _timedelta_between_accident_and_publication,
+    _remove_symbols_and_digits_from_column,
+    _separate_city_and_state,
+    _column_name_replacement,
 )
 import pandas as pd
 
@@ -20,7 +20,7 @@ def test_get_year_and_month_from_date():
         }
     )
     pd.testing.assert_frame_equal(
-        create_year_and_month_column_from_date(df), df_expected
+        _create_year_and_month_column_from_date(df), df_expected
     )
 
 
@@ -39,7 +39,7 @@ def test_timedelta_in_days():
         }
     )
     pd.testing.assert_frame_equal(
-        timedelta_between_accident_and_publication(df), df_expected
+        _timedelta_between_accident_and_publication(df), df_expected
     )
 
 
@@ -55,7 +55,7 @@ def test_remove_symbols_and_digits_from_column_values():
         }
     )
     pd.testing.assert_frame_equal(
-        remove_symbols_and_digits_from_column(df, "Injury"), df_expected
+        _remove_symbols_and_digits_from_column(df, "Injury"), df_expected
     )
 
 
@@ -71,13 +71,13 @@ def test_separate_city_and_state():
             "State": ["NJ"],
         }
     )
-    pd.testing.assert_frame_equal(separate_city_and_state(df), df_expected)
+    pd.testing.assert_frame_equal(_separate_city_and_state(df), df_expected)
 
 
 def test_column_name_replacement():
     df = pd.DataFrame(
         {
-            "Injury-total": [1, 2],
+            "Injury.total": [1, 2],
         }
     )
     df_expected = pd.DataFrame(
@@ -85,6 +85,4 @@ def test_column_name_replacement():
             "Injury_total": [1, 2],
         }
     )
-    pd.testing.assert_frame_equal(
-        column_name_replacement.__wrapped__(df, "-", "_"), df_expected
-    )
+    pd.testing.assert_frame_equal(_column_name_replacement(df, ".", "_"), df_expected)
